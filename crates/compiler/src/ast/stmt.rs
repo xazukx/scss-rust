@@ -16,6 +16,7 @@ use crate::{
     value::Value,
 };
 
+/// A Sass `//`-style silent comment that does not appear in the final CSS.
 #[derive(Debug, Clone)]
 #[allow(unused)]
 pub struct AstSilentComment {
@@ -23,6 +24,7 @@ pub struct AstSilentComment {
     pub span: Span,
 }
 
+/// A plain CSS `@import` with a URL and optional modifiers.
 #[derive(Debug, Clone)]
 pub struct AstPlainCssImport {
     pub url: Interpolation,
@@ -31,24 +33,28 @@ pub struct AstPlainCssImport {
     pub span: Span,
 }
 
+/// A Sass `@import` that may load other Sass stylesheets.
 #[derive(Debug, Clone)]
 pub struct AstSassImport {
     pub url: String,
     pub span: Span,
 }
 
+/// A Sass `@if` block with optional `@else`/`@else if` clauses.
 #[derive(Debug, Clone)]
 pub struct AstIf {
     pub if_clauses: Vec<AstIfClause>,
     pub else_clause: Option<Vec<AstStmt>>,
 }
 
+/// A single `@if` or `@else if` clause inside an `AstIf`.
 #[derive(Debug, Clone)]
 pub struct AstIfClause {
     pub condition: AstExpr,
     pub body: Vec<AstStmt>,
 }
 
+/// A Sass `@for` loop with an iteration variable and range.
 #[derive(Debug, Clone)]
 pub struct AstFor {
     pub variable: Spanned<Identifier>,
@@ -58,6 +64,7 @@ pub struct AstFor {
     pub body: Vec<AstStmt>,
 }
 
+/// A Sass `@return` statement inside a function.
 #[derive(Debug, Clone)]
 pub struct AstReturn {
     pub val: AstExpr,
@@ -65,6 +72,7 @@ pub struct AstReturn {
     pub span: Span,
 }
 
+/// A ruleset with a selector and nested statements (e.g. `.button { ... }`).
 #[derive(Debug, Clone)]
 pub struct AstRuleSet {
     pub selector: Interpolation,
@@ -73,6 +81,7 @@ pub struct AstRuleSet {
     pub span: Span,
 }
 
+/// A single CSS property declaration, possibly with nested statements.
 #[derive(Debug, Clone)]
 pub struct AstStyle {
     pub name: Interpolation,
@@ -87,6 +96,7 @@ impl AstStyle {
     }
 }
 
+/// A Sass `@each` loop over a list of values.
 #[derive(Debug, Clone)]
 pub struct AstEach {
     pub variables: Vec<Identifier>,
@@ -94,6 +104,7 @@ pub struct AstEach {
     pub body: Vec<AstStmt>,
 }
 
+/// A CSS `@media` rule with a query and nested body.
 #[derive(Debug, Clone)]
 pub struct AstMedia {
     pub query: Interpolation,
@@ -104,12 +115,14 @@ pub struct AstMedia {
 
 pub type CssMediaQuery = MediaQuery;
 
+/// A Sass `@while` loop.
 #[derive(Debug, Clone)]
 pub struct AstWhile {
     pub condition: AstExpr,
     pub body: Vec<AstStmt>,
 }
 
+/// A Sass variable declaration like `$name: value`.
 #[derive(Debug, Clone)]
 pub struct AstVariableDecl {
     pub namespace: Option<Spanned<Identifier>>,
@@ -120,6 +133,7 @@ pub struct AstVariableDecl {
     pub span: Span,
 }
 
+/// A user-defined Sass function declaration.
 #[derive(Debug, Clone)]
 pub struct AstFunctionDecl {
     pub name: Spanned<Identifier>,
@@ -127,18 +141,21 @@ pub struct AstFunctionDecl {
     pub body: Vec<AstStmt>,
 }
 
+/// A Sass `@debug` rule that prints a value during evaluation.
 #[derive(Debug, Clone)]
 pub struct AstDebugRule {
     pub value: AstExpr,
     pub span: Span,
 }
 
+/// A Sass `@warn` rule that emits a warning message.
 #[derive(Debug, Clone)]
 pub struct AstWarn {
     pub value: AstExpr,
     pub span: Span,
 }
 
+/// A Sass `@error` rule that aborts evaluation with an error.
 #[derive(Debug, Clone)]
 pub struct AstErrorRule {
     pub value: AstExpr,
@@ -153,12 +170,14 @@ impl PartialEq for AstFunctionDecl {
 
 impl Eq for AstFunctionDecl {}
 
+/// A `/* ... */` comment that is preserved in the output CSS.
 #[derive(Debug, Clone)]
 pub struct AstLoudComment {
     pub text: Interpolation,
     pub span: Span,
 }
 
+/// A Sass mixin declaration.
 #[derive(Debug, Clone)]
 pub struct AstMixin {
     pub name: Identifier,
@@ -168,17 +187,20 @@ pub struct AstMixin {
     pub has_content: bool,
 }
 
+/// A `@content` placeholder inside a mixin body.
 #[derive(Debug, Clone)]
 pub struct AstContentRule {
     pub args: ArgumentInvocation,
 }
 
+/// The body passed to a mixin via `@include ... { ... }`.
 #[derive(Debug, Clone)]
 pub struct AstContentBlock {
     pub args: ArgumentDeclaration,
     pub body: Vec<AstStmt>,
 }
 
+/// A Sass `@include` that invokes a mixin.
 #[derive(Debug, Clone)]
 pub struct AstInclude {
     pub namespace: Option<Spanned<Identifier>>,
@@ -188,6 +210,7 @@ pub struct AstInclude {
     pub span: Span,
 }
 
+/// Any at-rule that is not handled specially by the Sass parser.
 #[derive(Debug, Clone)]
 pub struct AstUnknownAtRule {
     pub name: Interpolation,
@@ -196,6 +219,7 @@ pub struct AstUnknownAtRule {
     pub span: Span,
 }
 
+/// A Sass `@extend` rule.
 #[derive(Debug, Clone)]
 pub struct AstExtendRule {
     pub value: Interpolation,
@@ -203,6 +227,7 @@ pub struct AstExtendRule {
     pub span: Span,
 }
 
+/// A Sass `@at-root` rule that changes where nested CSS is emitted.
 #[derive(Debug, Clone)]
 pub struct AstAtRootRule {
     pub body: Vec<AstStmt>,
@@ -211,6 +236,7 @@ pub struct AstAtRootRule {
     pub span: Span,
 }
 
+/// A query describing which rules are included or excluded by an `@at-root`.
 #[derive(Debug, Clone)]
 pub struct AtRootQuery {
     pub include: bool,
@@ -266,11 +292,13 @@ impl Default for AtRootQuery {
     }
 }
 
+/// A Sass `@import` that may contain multiple import targets.
 #[derive(Debug, Clone)]
 pub struct AstImportRule {
     pub imports: Vec<AstImport>,
 }
 
+/// One of the two forms of import: plain CSS or Sass.
 #[derive(Debug, Clone)]
 pub enum AstImport {
     Plain(AstPlainCssImport),
@@ -283,6 +311,7 @@ impl AstImport {
     }
 }
 
+/// A Sass `@use` rule that loads a module with an optional namespace and configuration.
 #[derive(Debug, Clone)]
 pub struct AstUseRule {
     pub url: PathBuf,
@@ -291,6 +320,7 @@ pub struct AstUseRule {
     pub span: Span,
 }
 
+/// A configured variable passed into a module via `@use`/`@forward`.
 #[derive(Debug, Clone)]
 pub struct ConfiguredVariable {
     pub name: Spanned<Identifier>,
@@ -298,6 +328,7 @@ pub struct ConfiguredVariable {
     pub is_guarded: bool,
 }
 
+/// A set of configured variables carried through `@use`/`@forward`.
 #[derive(Debug, Clone)]
 pub struct Configuration {
     pub(crate) values: Arc<dyn MapView<Value = ConfiguredValue>>,
@@ -403,6 +434,7 @@ impl Configuration {
     }
 }
 
+/// The configured value of a single variable, with an optional configuration span.
 #[derive(Debug, Clone)]
 pub struct ConfiguredValue {
     pub value: Value,
@@ -425,6 +457,7 @@ impl ConfiguredValue {
     }
 }
 
+/// A Sass `@forward` rule that re-exports members from another module.
 #[derive(Debug, Clone)]
 pub struct AstForwardRule {
     pub url: PathBuf,
@@ -497,6 +530,7 @@ impl AstForwardRule {
     }
 }
 
+/// The condition part of a CSS `@supports` rule.
 #[derive(Debug, Clone)]
 pub enum AstSupportsCondition {
     Anything {
@@ -519,6 +553,7 @@ pub enum AstSupportsCondition {
     },
 }
 
+/// A CSS `@supports` rule with a condition and nested body.
 #[derive(Debug, Clone)]
 pub struct AstSupportsRule {
     pub condition: AstSupportsCondition,
@@ -526,6 +561,7 @@ pub struct AstSupportsRule {
     pub span: Span,
 }
 
+/// A top-level or nested statement in a Sass stylesheet.
 #[derive(Debug, Clone)]
 pub enum AstStmt {
     If(AstIf),
@@ -555,6 +591,7 @@ pub enum AstStmt {
     Supports(AstSupportsRule),
 }
 
+/// A complete parsed stylesheet, including top-level statements and bookkeeping.
 #[derive(Debug, Clone)]
 pub struct StyleSheet {
     pub body: Vec<AstStmt>,

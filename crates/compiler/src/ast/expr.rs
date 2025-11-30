@@ -11,10 +11,11 @@ use crate::{
 
 use super::{ArgumentInvocation, AstSupportsCondition, Interpolation, InterpolationPart};
 
-/// Represented by the `if` function
+/// A ternary expression represented by the Sass `if()` function.
 #[derive(Debug, Clone)]
 pub struct Ternary(pub ArgumentInvocation);
 
+/// A list expression with a separator and optional brackets.
 #[derive(Debug, Clone)]
 pub struct ListExpr {
     pub elems: Vec<Spanned<AstExpr>>,
@@ -22,6 +23,7 @@ pub struct ListExpr {
     pub brackets: Brackets,
 }
 
+/// A normal function call expression like `func(args...)`.
 #[derive(Debug, Clone)]
 pub struct FunctionCallExpr {
     pub namespace: Option<Spanned<Identifier>>,
@@ -30,6 +32,7 @@ pub struct FunctionCallExpr {
     pub span: Span,
 }
 
+/// A function call whose name is built from an interpolation.
 #[derive(Debug, Clone)]
 pub struct InterpolatedFunction {
     pub name: Interpolation,
@@ -37,9 +40,11 @@ pub struct InterpolatedFunction {
     pub span: Span,
 }
 
+/// A Sass map literal, represented as key/value expression pairs.
 #[derive(Debug, Clone, Default)]
 pub struct AstSassMap(pub Vec<(Spanned<AstExpr>, AstExpr)>);
 
+/// A binary operator expression such as `a + b` or `a == b`.
 #[derive(Debug, Clone)]
 pub struct BinaryOpExpr {
     pub lhs: AstExpr,
@@ -49,6 +54,7 @@ pub struct BinaryOpExpr {
     pub span: Span,
 }
 
+/// Any Sass expression node in the AST.
 #[derive(Debug, Clone)]
 pub enum AstExpr {
     BinaryOp(Arc<BinaryOpExpr>),
@@ -82,6 +88,7 @@ pub enum AstExpr {
 
 // todo: make quotes bool
 // todo: track span inside
+/// A string expression backed by an interpolation and quote kind.
 #[derive(Debug, Clone)]
 pub struct StringExpr(pub Interpolation, pub QuoteKind);
 
