@@ -5,7 +5,7 @@ use crate::ast::CssMediaQuery;
 use super::{ComplexSelector, SimpleSelector};
 
 #[derive(Clone, Debug)]
-pub(crate) struct Extension {
+pub struct Extension {
     /// The selector in which the `@extend` appeared.
     pub extender: ComplexSelector,
 

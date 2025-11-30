@@ -19,7 +19,7 @@ type Mutable<T> = Arc<RefCell<T>>;
 use super::{scope::Scopes, visitor::CallableContentBlock};
 
 #[derive(Debug, Clone)]
-pub(crate) struct Environment {
+pub struct Environment {
     pub scopes: Scopes,
     pub modules: Mutable<Modules>,
     pub global_modules: Vec<Mutable<Module>>,

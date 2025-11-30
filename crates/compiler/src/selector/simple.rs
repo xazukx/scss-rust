@@ -24,7 +24,7 @@ const SUBSELECTOR_PSEUDOS: [&str; 6] = [
 const BASE_SPECIFICITY: i32 = 1000;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub(crate) enum SimpleSelector {
+pub enum SimpleSelector {
     /// *
     Universal(Namespace),
 
@@ -390,7 +390,7 @@ impl SimpleSelector {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct Pseudo {
+pub struct Pseudo {
     /// The name of this selector.
     pub name: String,
 

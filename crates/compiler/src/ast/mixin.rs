@@ -6,12 +6,12 @@ use crate::{
     evaluate::{Environment, Visitor},
 };
 
-pub(crate) type BuiltinMixin = fn(ArgumentResult, &mut Visitor) -> SassResult<()>;
+pub type BuiltinMixin = fn(ArgumentResult, &mut Visitor) -> SassResult<()>;
 
-pub(crate) use crate::ast::AstMixin as UserDefinedMixin;
+pub use crate::ast::AstMixin as UserDefinedMixin;
 
 #[derive(Clone)]
-pub(crate) enum Mixin {
+pub enum Mixin {
     UserDefined(UserDefinedMixin, Environment),
     Builtin(BuiltinMixin),
 }

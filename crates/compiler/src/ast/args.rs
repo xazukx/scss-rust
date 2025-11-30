@@ -152,7 +152,7 @@ impl ArgumentInvocation {
 
 // todo: hack for builtin `call`
 #[derive(Debug, Clone)]
-pub(crate) enum MaybeEvaledArguments {
+pub enum MaybeEvaledArguments {
     Invocation(ArgumentInvocation),
     Evaled(ArgumentResult),
 }

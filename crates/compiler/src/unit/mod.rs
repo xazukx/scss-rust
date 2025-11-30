@@ -122,7 +122,7 @@ pub(crate) fn are_any_convertible(units1: &[Unit], units2: &[Unit]) -> bool {
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub(crate) enum UnitKind {
+pub enum UnitKind {
     Absolute,
     FontRelative,
     ViewportRelative,

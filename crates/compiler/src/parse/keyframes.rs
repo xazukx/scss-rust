@@ -14,7 +14,7 @@ impl fmt::Display for KeyframesSelector {
     }
 }
 
-pub(crate) struct KeyframesSelectorParser {
+pub struct KeyframesSelectorParser {
     toks: Lexer,
 }
 

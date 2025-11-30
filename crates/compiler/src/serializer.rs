@@ -120,7 +120,7 @@ pub(crate) fn inspect_number(
     Ok(serializer.finish_for_expr())
 }
 
-pub(crate) struct Serializer<'a> {
+pub struct Serializer<'a> {
     indentation: usize,
     options: &'a Options<'a>,
     inspect: bool,

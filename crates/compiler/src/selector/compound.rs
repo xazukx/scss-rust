@@ -12,7 +12,7 @@ use super::{
 /// A compound selector is composed of several
 /// simple selectors
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub(crate) struct CompoundSelector {
+pub struct CompoundSelector {
     pub components: Vec<SimpleSelector>,
 }
 

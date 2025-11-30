@@ -33,7 +33,9 @@ const SELECTOR_PSEUDO_CLASSES: [&str; 9] = [
 /// Pseudo-element selectors that take unadorned selectors as arguments.
 const SELECTOR_PSEUDO_ELEMENTS: [&str; 1] = ["slotted"];
 
-pub(crate) struct SelectorParser {
+
+#[derive(Clone, Debug)]
+pub struct SelectorParser {
     /// Whether this parser allows the parent selector `&`.
     allows_parent: bool,
 

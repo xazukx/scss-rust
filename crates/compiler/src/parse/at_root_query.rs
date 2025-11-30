@@ -4,7 +4,7 @@ use crate::{ast::AtRootQuery, error::SassResult, lexer::Lexer};
 
 use super::BaseParser;
 
-pub(crate) struct AtRootQueryParser {
+pub struct AtRootQueryParser {
     toks: Lexer,
 }
 

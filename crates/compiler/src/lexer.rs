@@ -5,13 +5,13 @@ use codemap::{File, Span};
 const FORM_FEED: char = '\x0C';
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub(crate) struct Token {
+pub struct Token {
     pub kind: char,
     pos: u32,
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct Lexer {
+pub struct Lexer {
     buf: Vec<Token>,
     entire_span: Span,
     cursor: usize,
@@ -113,7 +113,7 @@ impl Iterator for Lexer {
 }
 
 /// Lex a string into a series of tokens
-pub(crate) struct TokenLexer<'a> {
+pub struct TokenLexer<'a> {
     buf: Peekable<Chars<'a>>,
     cursor: u32,
 }

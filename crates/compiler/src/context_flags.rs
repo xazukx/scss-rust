@@ -1,10 +1,10 @@
 use std::ops::{BitAnd, BitOr, BitOrAssign};
 
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct ContextFlags(pub u16);
+pub struct ContextFlags(pub u16);
 
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct ContextFlag(u16);
+pub struct ContextFlag(u16);
 
 impl ContextFlags {
     pub const IN_MIXIN: ContextFlag = ContextFlag(1);

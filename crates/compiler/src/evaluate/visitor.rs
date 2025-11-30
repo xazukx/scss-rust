@@ -95,7 +95,7 @@ impl UserDefinedCallable for Arc<CallableContentBlock> {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct CallableContentBlock {
+pub struct CallableContentBlock {
     content: AstContentBlock,
     env: Environment,
 }

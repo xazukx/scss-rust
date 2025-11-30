@@ -14,7 +14,7 @@ use super::{CompoundSelector, Pseudo, SelectorList, SimpleSelector, Specificity}
 pub(crate) static COMPLEX_SELECTOR_UNIQUE_ID: AtomicU32 = AtomicU32::new(0);
 
 #[derive(Clone, Debug)]
-pub(crate) struct ComplexSelectorHashSet(HashSet<u32>);
+pub struct ComplexSelectorHashSet(HashSet<u32>);
 
 impl ComplexSelectorHashSet {
     pub fn new() -> Self {
@@ -39,7 +39,7 @@ impl ComplexSelectorHashSet {
 /// A complex selector is composed of `CompoundSelector`s separated by
 /// `Combinator`s. It selects elements based on their parent selectors.
 #[derive(Clone, Debug)]
-pub(crate) struct ComplexSelector {
+pub struct ComplexSelector {
     /// The components of this selector.
     ///
     /// This is never empty.
@@ -271,7 +271,7 @@ impl ComplexSelector {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Copy, Hash)]
-pub(crate) enum Combinator {
+pub enum Combinator {
     /// Matches the right-hand selector if it's immediately adjacent to the
     /// left-hand selector in the DOM tree.
     ///
@@ -302,7 +302,7 @@ impl Display for Combinator {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub(crate) enum ComplexSelectorComponent {
+pub enum ComplexSelectorComponent {
     Combinator(Combinator),
     Compound(CompoundSelector),
 }

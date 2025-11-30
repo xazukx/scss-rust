@@ -12,7 +12,7 @@ use crate::{
 use super::{Namespace, QualifiedName, SelectorParser};
 
 #[derive(Clone, Debug)]
-pub(crate) struct Attribute {
+pub struct Attribute {
     attr: QualifiedName,
     value: String,
     modifier: Option<char>,

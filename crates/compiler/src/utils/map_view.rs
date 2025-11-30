@@ -48,7 +48,7 @@ impl<T> MapView for Arc<dyn MapView<Value = T>> {
 }
 
 #[derive(Debug)]
-pub(crate) struct BaseMapView<T>(pub Arc<RefCell<BTreeMap<Identifier, T>>>);
+pub struct BaseMapView<T>(pub Arc<RefCell<BTreeMap<Identifier, T>>>);
 
 impl<T> Clone for BaseMapView<T> {
     fn clone(&self) -> Self {
@@ -57,13 +57,13 @@ impl<T> Clone for BaseMapView<T> {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct UnprefixedMapView<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone>(
+pub struct UnprefixedMapView<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone>(
     pub T,
     pub String,
 );
 
 #[derive(Debug, Clone)]
-pub(crate) struct PrefixedMapView<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone>(
+pub struct PrefixedMapView<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone>(
     pub T,
     pub String,
 );
@@ -192,7 +192,7 @@ impl<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone> MapView for PrefixedM
 /// This is unmodifiable *except for the [remove] method*, which is used for
 /// `@used with` to mark configured variables as used.
 #[derive(Debug, Clone)]
-pub(crate) struct LimitedMapView<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone>(
+pub struct LimitedMapView<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone>(
     pub T,
     pub HashSet<Identifier>,
 );
@@ -259,7 +259,7 @@ impl<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone> MapView for LimitedMa
 }
 
 #[derive(Debug)]
-pub(crate) struct MergedMapView<V: fmt::Debug + Clone>(
+pub struct MergedMapView<V: fmt::Debug + Clone>(
     pub Vec<Arc<dyn MapView<Value = V>>>,
     HashSet<Identifier>,
 );
@@ -313,7 +313,7 @@ impl<V: fmt::Debug + Clone> MapView for MergedMapView<V> {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct PublicMemberMapView<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone>(pub T);
+pub struct PublicMemberMapView<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone>(pub T);
 
 impl<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone> MapView for PublicMemberMapView<V, T> {
     type Value = V;

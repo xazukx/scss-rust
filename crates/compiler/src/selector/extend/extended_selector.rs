@@ -10,7 +10,7 @@ use std::{
 use crate::selector::{Selector, SelectorList};
 
 #[derive(Debug, Clone)]
-pub(crate) struct ExtendedSelector(Rc<RefCell<SelectorList>>);
+pub struct ExtendedSelector(Rc<RefCell<SelectorList>>);
 
 impl PartialEq for ExtendedSelector {
     fn eq(&self, other: &Self) -> bool {
@@ -65,7 +65,7 @@ impl ExtendedSelector {
 /// In practice, I have yet to find a test case that can demonstrate
 /// an issue with storing a `RefCell`.
 #[derive(Clone, Debug)]
-pub(crate) struct SelectorHashSet(HashSet<ExtendedSelector>);
+pub struct SelectorHashSet(HashSet<ExtendedSelector>);
 
 impl SelectorHashSet {
     pub fn new() -> Self {

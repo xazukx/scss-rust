@@ -7,7 +7,7 @@ use std::fmt;
 /// namespace. If it's `Asterisk`, this matches all elements in any namespace.
 /// Otherwise, it matches all elements in the given namespace.
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub(crate) enum Namespace {
+pub enum Namespace {
     Empty,
     Asterisk,
     Other(Box<str>),
@@ -26,7 +26,7 @@ impl fmt::Display for Namespace {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub(crate) struct QualifiedName {
+pub struct QualifiedName {
     pub ident: String,
     pub namespace: Namespace,
 }
@@ -38,7 +38,8 @@ impl fmt::Display for QualifiedName {
     }
 }
 
-pub(crate) struct Specificity {
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub struct Specificity {
     pub min: i32,
     pub max: i32,
 }

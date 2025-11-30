@@ -21,7 +21,7 @@ mod value;
 
 #[derive(Debug, Clone)]
 #[allow(clippy::large_enum_variant)]
-pub(crate) enum DeclarationOrBuffer {
+pub enum DeclarationOrBuffer {
     Stmt(AstStmt),
     Buffer(Interpolation),
 }
@@ -39,7 +39,7 @@ pub(super) const RESERVED_IDENTIFIERS: [&str; 8] = [
 ];
 
 #[derive(Debug, Clone)]
-pub(crate) enum VariableDeclOrInterpolation {
+pub enum VariableDeclOrInterpolation {
     VariableDecl(AstVariableDecl),
     Interpolation(Interpolation),
 }

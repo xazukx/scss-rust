@@ -16,7 +16,7 @@ use crate::{
 
 #[allow(clippy::type_complexity)]
 #[derive(Debug, Default, Clone)]
-pub(crate) struct Scopes {
+pub struct Scopes {
     pub(crate) variables: Arc<RefCell<Vec<Arc<RefCell<BTreeMap<Identifier, Value>>>>>>,
     pub(crate) mixins: Arc<RefCell<Vec<Arc<RefCell<BTreeMap<Identifier, Mixin>>>>>>,
     pub(crate) functions: Arc<RefCell<Vec<Arc<RefCell<BTreeMap<Identifier, SassFunction>>>>>>,

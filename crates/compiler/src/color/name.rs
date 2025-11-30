@@ -1,6 +1,6 @@
 //! A big dictionary of named colors and their corresponding RGBA values
 
-pub(crate) struct NamedColorMap {
+pub struct NamedColorMap {
     name_to_rgba: phf::Map<&'static str, [u8; 4]>,
     rgba_to_name: phf::Map<[u8; 3], &'static str>,
 }

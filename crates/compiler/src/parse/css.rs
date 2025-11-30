@@ -9,7 +9,7 @@ use crate::{
 
 use super::{value::ValueParser, BaseParser, StylesheetParser};
 
-pub(crate) struct CssParser<'a> {
+pub struct CssParser<'a> {
     pub toks: Lexer,
     pub path: &'a Path,
     pub empty_span: Span,

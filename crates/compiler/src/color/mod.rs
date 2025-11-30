@@ -30,7 +30,7 @@ pub struct Color {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub(crate) enum ColorFormat {
+pub enum ColorFormat {
     Rgb,
     Hsl,
     /// Literal string from source text. Either a named color like `red` or a hex color

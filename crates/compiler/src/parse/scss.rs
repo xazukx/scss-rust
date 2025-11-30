@@ -6,7 +6,7 @@ use crate::{lexer::Lexer, ContextFlags, Options};
 
 use super::{BaseParser, StylesheetParser};
 
-pub(crate) struct ScssParser<'a> {
+pub struct ScssParser<'a> {
     pub toks: Lexer,
     pub path: &'a Path,
     pub empty_span: Span,

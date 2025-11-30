@@ -33,7 +33,7 @@ mod string;
 /// A [Module] that only exposes members that aren't shadowed by a given
 /// blocklist of member names.
 #[derive(Debug, Clone)]
-pub(crate) struct ShadowedModule {
+pub struct ShadowedModule {
     #[allow(dead_code)]
     inner: Arc<RefCell<Module>>,
     scope: ModuleScope,
@@ -107,7 +107,7 @@ impl ShadowedModule {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct ForwardedModule {
+pub struct ForwardedModule {
     scope: ModuleScope,
     #[allow(dead_code)]
     inner: Arc<RefCell<Module>>,
@@ -198,7 +198,7 @@ impl ForwardedModule {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct ModuleScope {
+pub struct ModuleScope {
     pub variables: Arc<dyn MapView<Value = Value>>,
     pub mixins: Arc<dyn MapView<Value = Mixin>>,
     pub functions: Arc<dyn MapView<Value = SassFunction>>,
@@ -216,7 +216,7 @@ impl ModuleScope {
 
 #[derive(Debug, Clone)]
 #[allow(clippy::large_enum_variant)]
-pub(crate) enum Module {
+pub enum Module {
     Environment {
         scope: ModuleScope,
         #[allow(dead_code)]
@@ -234,7 +234,7 @@ pub(crate) enum Module {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct Modules(pub BTreeMap<Identifier, Arc<RefCell<Module>>>);
+pub struct Modules(pub BTreeMap<Identifier, Arc<RefCell<Module>>>);
 
 impl Modules {
     pub fn new() -> Self {

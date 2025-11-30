@@ -2,7 +2,7 @@ use crate::{ast::MediaQuery, error::SassResult, lexer::Lexer};
 
 use super::BaseParser;
 
-pub(crate) struct MediaQueryParser {
+pub struct MediaQueryParser {
     pub toks: Lexer,
 }
 

@@ -5,7 +5,7 @@ use crate::selector::ExtendedSelector;
 use super::{MediaRule, Style, UnknownAtRule};
 
 #[derive(Debug, Clone)]
-pub(crate) enum CssStmt {
+pub enum CssStmt {
     RuleSet {
         selector: ExtendedSelector,
         body: Vec<Self>,
@@ -110,20 +110,20 @@ impl CssStmt {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct KeyframesRuleSet {
+pub struct KeyframesRuleSet {
     pub selector: Vec<KeyframesSelector>,
     pub body: Vec<CssStmt>,
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum KeyframesSelector {
+pub enum KeyframesSelector {
     To,
     From,
     Percent(Box<str>),
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct SupportsRule {
+pub struct SupportsRule {
     pub params: String,
     pub body: Vec<CssStmt>,
 }

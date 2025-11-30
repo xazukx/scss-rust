@@ -20,7 +20,7 @@ use crate::{
 /// A selector list is composed of `ComplexSelector`s. It matches an element
 /// that matches any of the component selectors.
 #[derive(Clone, Debug)]
-pub(crate) struct SelectorList {
+pub struct SelectorList {
     /// The components of this selector.
     ///
     /// This is never empty.

@@ -15,7 +15,7 @@ pub mod other;
 pub mod rgb;
 
 #[derive(Debug, Clone)]
-pub(crate) enum ParsedChannels {
+pub enum ParsedChannels {
     String(String),
     List(Vec<Value>),
 }

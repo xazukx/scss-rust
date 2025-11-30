@@ -5,7 +5,7 @@ use codemap::Span;
 use crate::{ast::CssStmt, error::SassResult, lexer::Lexer, parse::MediaQueryParser};
 
 #[derive(Debug, Clone)]
-pub(crate) struct MediaRule {
+pub struct MediaRule {
     pub query: Vec<MediaQuery>,
     pub body: Vec<CssStmt>,
 }
@@ -241,7 +241,7 @@ impl fmt::Display for MediaQuery {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub(crate) enum MediaQueryMergeResult {
+pub enum MediaQueryMergeResult {
     Empty,
     Unrepresentable,
     Success(MediaQuery),

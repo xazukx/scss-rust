@@ -29,7 +29,7 @@ fn is_hex_color(interpolation: &Interpolation) -> bool {
     false
 }
 
-pub(crate) struct ValueParser<'a, 'c, P: StylesheetParser<'a>> {
+pub struct ValueParser<'a, 'c, P: StylesheetParser<'a>> {
     comma_expressions: Option<Vec<Spanned<AstExpr>>>,
     space_expressions: Option<Vec<Spanned<AstExpr>>>,
     binary_operators: Option<Vec<BinaryOp>>,

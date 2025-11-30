@@ -1,4 +1,4 @@
 #[derive(Clone, Debug)]
-pub(crate) struct ExtendRule {
+pub struct ExtendRule {
     pub is_optional: bool,
 }

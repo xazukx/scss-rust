@@ -56,7 +56,7 @@ impl Default for ExtendMode {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct ExtensionStore {
+pub struct ExtensionStore {
     /// A map from all simple selectors in the stylesheet to the selector lists
     /// that contain them.
     ///
