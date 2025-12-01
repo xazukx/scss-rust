@@ -63,7 +63,7 @@ use std::path::Path;
 
 use parse::{CssParser, SassParser, StylesheetParser};
 pub use sass_ast::StyleSheet;
-pub use serializer::StyleSerializer;
+pub use serializer::{serialize_ast_expr, StyleSerializer};
 #[cfg(feature = "wasm-exports")]
 use wasm_bindgen::prelude::*;
 

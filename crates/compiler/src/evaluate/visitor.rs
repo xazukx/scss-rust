@@ -2534,7 +2534,7 @@ impl<'a> Visitor<'a> {
         }
     }
 
-    fn visit_expr(&mut self, expr: AstExpr) -> SassResult<Value> {
+    pub fn visit_expr(&mut self, expr: AstExpr) -> SassResult<Value> {
         Ok(match expr {
             AstExpr::Color(color) => Value::Color(color),
             AstExpr::Number { n, unit } => Value::Dimension(SassNumber {
