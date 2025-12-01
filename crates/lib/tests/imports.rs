@@ -44,15 +44,6 @@ fn imports_variable() {
 }
 
 #[test]
-#[ignore = "we don't actually check if the semicolon exists"]
-fn import_no_semicolon() {
-    let input = "@import \"import_no_semicolon\"\na {\n color: $a;\n}";
-    tempfile!("import_no_semicolon", "$a: red;");
-
-    drop(input);
-}
-
-#[test]
 fn import_no_quotes() {
     let input = "@import import_no_quotes";
 

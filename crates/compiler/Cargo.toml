@@ -1,5 +1,5 @@
 [package]
-name = "grass_compiler"
+name = "scss_compiler"
 version = "0.13.4"
 edition = "2021"
 description = "Internal implementation of the grass compiler"
@@ -12,7 +12,7 @@ authors = ["Connor Skees <39542938+ConnorSkees@users.noreply.github.com>"]
 rust-version = "1.70"
 
 [lib]
-name = "grass_compiler"
+name = "scss_compiler"
 path = "src/lib.rs"
 # crate-type = ["cdylib", "rlib"]
 bench = false

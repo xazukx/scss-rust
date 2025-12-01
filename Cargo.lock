@@ -160,23 +160,10 @@ version = "0.13.4"
 dependencies = [
  "clap",
  "getrandom",
- "grass_compiler",
  "include_sass",
  "paste",
+ "scss_compiler",
  "tempfile",
- "wasm-bindgen",
-]
-
-[[package]]
-name = "grass_compiler"
-version = "0.13.4"
-dependencies = [
- "codemap",
- "indexmap",
- "lasso",
- "once_cell",
- "phf",
- "rand",
  "wasm-bindgen",
 ]
 
@@ -199,8 +186,8 @@ checksum = "290f1a1d9242c78d09ce40a5e87e7554ee637af1351968159f4952f028f75604"
 name = "include_sass"
 version = "0.13.4"
 dependencies = [
- "grass_compiler",
  "quote",
+ "scss_compiler",
  "syn",
 ]
 
@@ -369,6 +356,19 @@ dependencies = [
  "libc",
  "linux-raw-sys",
  "windows-sys",
+]
+
+[[package]]
+name = "scss_compiler"
+version = "0.13.4"
+dependencies = [
+ "codemap",
+ "indexmap",
+ "lasso",
+ "once_cell",
+ "phf",
+ "rand",
+ "wasm-bindgen",
 ]
 
 [[package]]

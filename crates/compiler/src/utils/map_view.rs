@@ -7,7 +7,7 @@ use std::{
 
 use crate::common::Identifier;
 
-pub(crate) trait MapView: fmt::Debug {
+pub trait MapView: fmt::Debug {
     type Value;
     fn get(&self, name: Identifier) -> Option<Self::Value>;
     fn remove(&self, name: Identifier) -> Option<Self::Value>;

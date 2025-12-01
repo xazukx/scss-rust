@@ -41,7 +41,7 @@ rustdoc-args = ["--cfg", "doc_cfg"]
 [dependencies]
 wasm-bindgen = { version = "0.2", optional = true }
 getrandom = { version = "0.2", features = ["js"] }
-grass_compiler = { path = "../compiler", version = "=0.13.4", default-features = false }
+scss_compiler = { path = "../compiler", version = "=0.13.4", default-features = false }
 include_sass = { path = "../include_sass", version = "0.13.4", optional = true }
 clap = { version = "4.3.10", optional = true }
 
@@ -50,8 +50,8 @@ clap = { version = "4.3.10", optional = true }
 default = ["commandline", "random"]
 # Option (enabled by default): build a binary using clap
 commandline = ["clap"]
-random = ["grass_compiler/random"]
-wasm-exports = ["grass_compiler/wasm-exports", "wasm-bindgen"]
+random = ["scss_compiler/random"]
+wasm-exports = ["scss_compiler/wasm-exports", "wasm-bindgen"]
 # Option: include the proc macro `include_sass!`
 macro = ["include_sass"]
 nightly = ["include_sass/nightly"]

@@ -32,7 +32,7 @@
 # 0.13.0
 
 - fix various module system bugs when combined with `@import`. this is potentially breaking in rare cases where users were relying on the incorrect behavior
-- expose more AST internals in `grass_compiler`
+- expose more AST internals in `scss_compiler`
 - allow building docs with stable/beta rust compiler
 - support `...$keys` argument to `map-get(..)`/`map.get(..)` (#83)
 
@@ -44,7 +44,7 @@
 
 No visible changes for users of the `grass` crate
 
-Exposes more internals of the `grass_compiler` crate, allowing for custom functions implemented in rust to be accessed from Sass.
+Exposes more internals of the `scss_compiler` crate, allowing for custom functions implemented in rust to be accessed from Sass.
 
 # 0.12.2
 

@@ -31,7 +31,6 @@ grass input.scss
 ```
 */
 
-#![cfg_attr(doc_cfg, feature(doc_cfg))]
 #![warn(clippy::all, clippy::cargo, clippy::dbg_macro)]
 #![deny(missing_debug_implementations)]
 #![allow(
@@ -65,7 +64,7 @@ grass input.scss
     unknown_lints,
 )]
 
-pub use grass_compiler::{
+pub use scss_compiler::{
     from_path, from_string, Error, ErrorKind, Fs, InputSyntax, Logger, NullFs, NullLogger, Options,
     OutputStyle, Result, StdFs, StdLogger,
 };

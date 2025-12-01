@@ -6,7 +6,7 @@ use std::{
 };
 
 use grass::{Fs, Logger};
-use grass_compiler::codemap::SpanLoc;
+use scss_compiler::codemap::SpanLoc;
 
 #[macro_export]
 macro_rules! test {

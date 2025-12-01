@@ -1,4 +1,4 @@
-use grass_compiler::OutputStyle;
+use scss_compiler::OutputStyle;
 
 #[macro_use]
 mod macros;

@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use grass_compiler as grass;
+use scss_compiler as grass;
 
 use grass::{
 	Options,

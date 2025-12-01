@@ -11,11 +11,11 @@ Paths are relative to repo root `d:/Projects/Oniz/scss-rust`.
 **File:** `crates/lib/src/lib.rs`
 
 - **`grass::from_string`**
-  - Re-export of `grass_compiler::from_string`.
+  - Re-export of `scss_compiler::from_string`.
   - Use to compile a string of SCSS/Sass/CSS into CSS.
 
 - **`grass::from_path`**
-  - Re-export of `grass_compiler::from_path`.
+  - Re-export of `scss_compiler::from_path`.
   - Use to compile from a file path.
 
 These two are the only functions you typically call directly from outside the crate.

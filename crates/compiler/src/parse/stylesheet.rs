@@ -30,7 +30,7 @@ pub(crate) trait StylesheetParser<'a>: BaseParser + Sized {
     fn is_plain_css(&self) -> bool;
     // todo: make constant?
     fn is_indented(&self) -> bool;
-    fn options(&self) -> &Options;
+    fn options(&self) -> &'_ Options<'_>;
     fn path(&self) -> &Path;
     fn empty_span(&self) -> Span;
     fn current_indentation(&self) -> usize;

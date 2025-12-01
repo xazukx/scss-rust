@@ -58,7 +58,7 @@ impl<'a> StylesheetParser<'a> for ScssParser<'a> {
         self.path
     }
 
-    fn options(&self) -> &Options {
+    fn options(&self) -> &'_ Options<'_> {
         self.options
     }
 
