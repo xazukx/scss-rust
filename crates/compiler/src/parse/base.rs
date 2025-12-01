@@ -5,7 +5,7 @@ use crate::{
     Token,
 };
 
-pub(crate) trait BaseParser {
+pub trait BaseParser {
     fn toks(&self) -> &Lexer;
     fn toks_mut(&mut self) -> &mut Lexer;
 

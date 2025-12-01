@@ -63,7 +63,7 @@ use std::path::Path;
 
 use parse::{CssParser, SassParser, StylesheetParser};
 use sass_ast::StyleSheet;
-use serializer::Serializer;
+use serializer::StyleSerializer;
 #[cfg(feature = "wasm-exports")]
 use wasm_bindgen::prelude::*;
 
@@ -140,13 +140,13 @@ pub fn parse_stylesheet<P: AsRef<Path>>(
 
     let stylesheet = match input_syntax {
         InputSyntax::Scss => {
-            ScssParser::new(lexer, options, empty_span, file_name.as_ref()).__parse()
+            ScssParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
         }
         InputSyntax::Sass => {
-            SassParser::new(lexer, options, empty_span, file_name.as_ref()).__parse()
+            SassParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
         }
         InputSyntax::Css => {
-            CssParser::new(lexer, options, empty_span, file_name.as_ref()).__parse()
+            CssParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
         }
     };
 
@@ -175,13 +175,13 @@ fn from_string_with_file_name<P: AsRef<Path>>(
 
     let stylesheet = match input_syntax {
         InputSyntax::Scss => {
-            ScssParser::new(lexer, options, empty_span, file_name.as_ref()).__parse()
+            ScssParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
         }
         InputSyntax::Sass => {
-            SassParser::new(lexer, options, empty_span, file_name.as_ref()).__parse()
+            SassParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
         }
         InputSyntax::Css => {
-            CssParser::new(lexer, options, empty_span, file_name.as_ref()).__parse()
+            CssParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
         }
     };
 
@@ -197,7 +197,7 @@ fn from_string_with_file_name<P: AsRef<Path>>(
     }
     let stmts = visitor.finish();
 
-    let mut serializer = Serializer::new(options, &map, false, empty_span);
+    let mut serializer = StyleSerializer::new(options, &map, false, empty_span);
 
     let mut prev_was_group_end = false;
     let mut prev_requires_semicolon = false;
@@ -207,7 +207,7 @@ fn from_string_with_file_name<P: AsRef<Path>>(
         }
 
         let is_group_end = stmt.is_group_end();
-        let requires_semicolon = Serializer::requires_semicolon(&stmt);
+        let requires_semicolon = StyleSerializer::requires_semicolon(&stmt);
 
         serializer
             .visit_group(stmt, prev_was_group_end, prev_requires_semicolon)
@@ -218,6 +218,68 @@ fn from_string_with_file_name<P: AsRef<Path>>(
     }
 
     Ok(serializer.finish(prev_requires_semicolon))
+}
+
+pub fn compile_with_files<P: AsRef<Path>>(
+    input: String,
+    file_name: P,
+    options: &Options,
+    code_map: &mut CodeMap,
+) -> Result<(String, StyleSheet)> {
+    let path = file_name.as_ref();
+    let file = code_map.add_file(path.to_string_lossy().into_owned(), input);
+    let empty_span = file.span.subspan(0, 0);
+    let lexer = Lexer::new_from_file(&file);
+
+    let input_syntax = options
+        .input_syntax
+        .unwrap_or_else(|| InputSyntax::for_path(path));
+
+    let stylesheet = match input_syntax {
+        InputSyntax::Scss => {
+            ScssParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
+        }
+        InputSyntax::Sass => {
+            SassParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
+        }
+        InputSyntax::Css => {
+            CssParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
+        }
+    };
+
+    let stylesheet = match stylesheet {
+        Ok(v) => v,
+        Err(e) => return Err(raw_to_parse_error(code_map, *e, options.unicode_error_messages)),
+    };
+
+    let mut visitor = Visitor::new(path, options, code_map, empty_span);
+    let stylesheet = match visitor.visit_stylesheet(stylesheet) {
+        Ok(v) => v,
+        Err(e) => return Err(raw_to_parse_error(code_map, *e, options.unicode_error_messages)),
+    };
+    let stmts = visitor.finish();
+
+    let mut serializer = StyleSerializer::new(options, code_map, false, empty_span);
+
+    let mut prev_was_group_end = false;
+    let mut prev_requires_semicolon = false;
+    for stmt in stmts {
+        if stmt.is_invisible() {
+            continue;
+        }
+
+        let is_group_end = stmt.is_group_end();
+        let requires_semicolon = StyleSerializer::requires_semicolon(&stmt);
+
+        serializer
+            .visit_group(stmt, prev_was_group_end, prev_requires_semicolon)
+            .map_err(|e| raw_to_parse_error(code_map, *e, options.unicode_error_messages))?;
+
+        prev_was_group_end = is_group_end;
+        prev_requires_semicolon = requires_semicolon;
+    }
+
+    Ok((serializer.finish(prev_requires_semicolon), stylesheet))
 }
 
 /// Compile CSS from a path

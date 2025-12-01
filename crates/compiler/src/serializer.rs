@@ -25,7 +25,7 @@ pub(crate) fn serialize_selector_list(
     span: Span,
 ) -> String {
     let map = CodeMap::new();
-    let mut serializer = Serializer::new(options, &map, false, span);
+    let mut serializer = StyleSerializer::new(options, &map, false, span);
 
     serializer.write_selector_list(list);
 
@@ -38,7 +38,7 @@ pub(crate) fn serialize_calculation_arg(
     span: Span,
 ) -> SassResult<String> {
     let map = CodeMap::new();
-    let mut serializer = Serializer::new(options, &map, false, span);
+    let mut serializer = StyleSerializer::new(options, &map, false, span);
 
     serializer.write_calculation_arg(arg)?;
 
@@ -51,7 +51,7 @@ pub(crate) fn serialize_number(
     span: Span,
 ) -> SassResult<String> {
     let map = CodeMap::new();
-    let mut serializer = Serializer::new(options, &map, false, span);
+    let mut serializer = StyleSerializer::new(options, &map, false, span);
 
     serializer.visit_number(number)?;
 
@@ -60,7 +60,7 @@ pub(crate) fn serialize_number(
 
 pub(crate) fn serialize_value(val: &Value, options: &Options, span: Span) -> SassResult<String> {
     let map = CodeMap::new();
-    let mut serializer = Serializer::new(options, &map, false, span);
+    let mut serializer = StyleSerializer::new(options, &map, false, span);
 
     serializer.visit_value(val, span)?;
 
@@ -69,7 +69,7 @@ pub(crate) fn serialize_value(val: &Value, options: &Options, span: Span) -> Sas
 
 pub(crate) fn inspect_value(val: &Value, options: &Options, span: Span) -> SassResult<String> {
     let map = CodeMap::new();
-    let mut serializer = Serializer::new(options, &map, true, span);
+    let mut serializer = StyleSerializer::new(options, &map, true, span);
 
     serializer.visit_value(val, span)?;
 
@@ -78,7 +78,7 @@ pub(crate) fn inspect_value(val: &Value, options: &Options, span: Span) -> SassR
 
 pub(crate) fn inspect_float(number: f64, options: &Options, span: Span) -> String {
     let map = CodeMap::new();
-    let mut serializer = Serializer::new(options, &map, true, span);
+    let mut serializer = StyleSerializer::new(options, &map, true, span);
 
     serializer.write_float(number);
 
@@ -87,7 +87,7 @@ pub(crate) fn inspect_float(number: f64, options: &Options, span: Span) -> Strin
 
 pub(crate) fn inspect_map(map: &SassMap, options: &Options, span: Span) -> SassResult<String> {
     let code_map = CodeMap::new();
-    let mut serializer = Serializer::new(options, &code_map, true, span);
+    let mut serializer = StyleSerializer::new(options, &code_map, true, span);
 
     serializer.visit_map(map, span)?;
 
@@ -100,7 +100,7 @@ pub(crate) fn inspect_function_ref(
     span: Span,
 ) -> SassResult<String> {
     let code_map = CodeMap::new();
-    let mut serializer = Serializer::new(options, &code_map, true, span);
+    let mut serializer = StyleSerializer::new(options, &code_map, true, span);
 
     serializer.visit_function_ref(func, span)?;
 
@@ -113,14 +113,14 @@ pub(crate) fn inspect_number(
     span: Span,
 ) -> SassResult<String> {
     let map = CodeMap::new();
-    let mut serializer = Serializer::new(options, &map, true, span);
+    let mut serializer = StyleSerializer::new(options, &map, true, span);
 
     serializer.visit_number(number)?;
 
     Ok(serializer.finish_for_expr())
 }
 
-pub struct Serializer<'a> {
+pub struct StyleSerializer<'a> {
     indentation: usize,
     options: &'a Options<'a>,
     inspect: bool,
@@ -132,7 +132,7 @@ pub struct Serializer<'a> {
     span: Span,
 }
 
-impl<'a> Serializer<'a> {
+impl<'a> StyleSerializer<'a> {
     pub fn new(options: &'a Options<'a>, map: &'a CodeMap, inspect: bool, span: Span) -> Self {
         Self {
             inspect,

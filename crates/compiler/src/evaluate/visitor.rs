@@ -173,14 +173,14 @@ impl<'a> Visitor<'a> {
         }
     }
 
-    pub(crate) fn visit_stylesheet(&mut self, mut style_sheet: StyleSheet) -> SassResult<()> {
+    pub fn visit_stylesheet(&mut self, mut style_sheet: StyleSheet) -> SassResult<StyleSheet> {
         self.active_modules.insert(style_sheet.url.clone());
         let was_in_plain_css = self.is_plain_css;
         self.is_plain_css = style_sheet.is_plain_css;
         mem::swap(&mut self.current_import_path, &mut style_sheet.url);
 
-        for stmt in style_sheet.body {
-            let result = self.visit_stmt(stmt)?;
+        for stmt in &style_sheet.body {
+            let result = self.visit_stmt(stmt.clone())?;
             debug_assert!(result.is_none());
         }
 
@@ -189,10 +189,10 @@ impl<'a> Visitor<'a> {
 
         self.active_modules.remove(&style_sheet.url);
 
-        Ok(())
+        Ok(style_sheet)
     }
 
-    pub(crate) fn finish(mut self) -> Vec<CssStmt> {
+    pub fn finish(mut self) -> Vec<CssStmt> {
         let mut finished_tree = self.css_tree.finish();
         if self.import_nodes.is_empty() {
             finished_tree
@@ -875,9 +875,9 @@ impl<'a> Visitor<'a> {
         empty_span: Span,
     ) -> SassResult<StyleSheet> {
         match InputSyntax::for_path(path) {
-            InputSyntax::Scss => ScssParser::new(lexer, self.options, empty_span, path).__parse(),
-            InputSyntax::Sass => SassParser::new(lexer, self.options, empty_span, path).__parse(),
-            InputSyntax::Css => CssParser::new(lexer, self.options, empty_span, path).__parse(),
+            InputSyntax::Scss => ScssParser::new(lexer, self.options, empty_span, path).parse(),
+            InputSyntax::Sass => SassParser::new(lexer, self.options, empty_span, path).parse(),
+            InputSyntax::Css => CssParser::new(lexer, self.options, empty_span, path).parse(),
         }
     }
 

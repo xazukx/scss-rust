@@ -25,7 +25,7 @@ use super::{
 
 /// Default implementations are oriented towards the SCSS syntax, as both CSS and
 /// SCSS share the behavior
-pub(crate) trait StylesheetParser<'a>: BaseParser + Sized {
+pub trait StylesheetParser<'a>: BaseParser + Sized {
     // todo: make constant?
     fn is_plain_css(&self) -> bool;
     // todo: make constant?
@@ -182,8 +182,7 @@ pub(crate) trait StylesheetParser<'a>: BaseParser + Sized {
         Ok(stmts)
     }
 
-    // todo: rename
-    fn __parse(&mut self) -> SassResult<StyleSheet> {
+    fn parse(&mut self) -> SassResult<StyleSheet> {
         let mut style_sheet = StyleSheet::new(
             self.is_plain_css(),
             self.options()
