@@ -62,8 +62,8 @@ grass input.scss
 use std::path::Path;
 
 use parse::{CssParser, SassParser, StylesheetParser};
-use sass_ast::StyleSheet;
-use serializer::StyleSerializer;
+pub use sass_ast::StyleSheet;
+pub use serializer::StyleSerializer;
 #[cfg(feature = "wasm-exports")]
 use wasm_bindgen::prelude::*;
 

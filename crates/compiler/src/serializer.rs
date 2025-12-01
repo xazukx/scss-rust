@@ -120,6 +120,7 @@ pub(crate) fn inspect_number(
     Ok(serializer.finish_for_expr())
 }
 
+#[derive(Debug)]
 pub struct StyleSerializer<'a> {
     indentation: usize,
     options: &'a Options<'a>,
