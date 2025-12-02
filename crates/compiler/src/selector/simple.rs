@@ -3,7 +3,7 @@ use std::{
     hash::{Hash, Hasher},
 };
 
-use codemap::Span;
+use crate::codemap::Span;
 
 use crate::{common::unvendor, error::SassResult};
 

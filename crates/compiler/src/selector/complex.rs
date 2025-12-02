@@ -5,7 +5,7 @@ use std::{
     sync::atomic::{AtomicU32, Ordering as AtomicOrdering},
 };
 
-use codemap::Span;
+use crate::codemap::Span;
 
 use crate::error::SassResult;
 

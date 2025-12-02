@@ -3,7 +3,7 @@ use std::{
     hash::Hash,
 };
 
-use codemap::Span;
+use crate::codemap::Span;
 
 use indexmap::IndexMap;
 

@@ -12,7 +12,7 @@ pub use functions::Builtin;
 mod builtin_imports {
     pub(crate) use super::functions::{Builtin, GlobalFunctionMap, GLOBAL_FUNCTIONS};
 
-    pub(crate) use codemap::{Span, Spanned};
+    pub(crate) use crate::codemap::{Span, Spanned};
 
     #[cfg(feature = "random")]
     pub(crate) use rand::{distributions::Alphanumeric, thread_rng, Rng};

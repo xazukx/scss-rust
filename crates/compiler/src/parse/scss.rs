@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use codemap::Span;
+use crate::codemap::Span;
 
 use crate::{lexer::Lexer, ContextFlags, Options};
 

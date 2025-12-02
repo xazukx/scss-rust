@@ -1,4 +1,4 @@
-use codemap::Span;
+use crate::codemap::Span;
 
 use crate::{common::unvendor, error::SassResult, lexer::Lexer, parse::BaseParser, Token};
 

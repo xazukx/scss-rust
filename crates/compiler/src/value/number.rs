@@ -11,7 +11,7 @@ use crate::{
     unit::{Unit, UNIT_CONVERSION_TABLE},
 };
 
-use codemap::Span;
+use crate::codemap::Span;
 
 const PRECISION: i32 = 10;
 

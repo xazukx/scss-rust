@@ -1,6 +1,6 @@
 use std::{iter::Iterator, marker::PhantomData, sync::Arc};
 
-use codemap::Spanned;
+use crate::codemap::Spanned;
 
 use crate::{
     ast::*,

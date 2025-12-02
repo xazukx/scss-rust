@@ -5,7 +5,7 @@ use std::{
     mem,
 };
 
-use codemap::Span;
+use crate::codemap::Span;
 
 use super::{unify_complex, ComplexSelector, ComplexSelectorComponent};
 

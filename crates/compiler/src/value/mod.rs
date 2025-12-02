@@ -1,6 +1,6 @@
 use std::{cmp::Ordering, sync::Arc};
 
-use codemap::{Span, Spanned};
+use crate::codemap::{Span, Spanned};
 
 use crate::{
     color::Color,

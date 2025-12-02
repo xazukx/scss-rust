@@ -1,6 +1,6 @@
 use std::{iter::Peekable, str::Chars, sync::Arc};
 
-use codemap::{File, Span};
+use crate::codemap::{File, Span};
 
 const FORM_FEED: char = '\x0C';
 

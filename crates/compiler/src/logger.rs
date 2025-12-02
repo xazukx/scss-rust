@@ -1,4 +1,4 @@
-use codemap::SpanLoc;
+use crate::codemap::SpanLoc;
 use std::fmt::Debug;
 
 /// A trait to allow replacing logging mechanisms

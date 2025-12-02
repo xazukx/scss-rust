@@ -3,7 +3,7 @@ use std::{
     sync::Arc,
 };
 
-use codemap::Span;
+use crate::codemap::Span;
 
 use crate::{
     error::SassResult,

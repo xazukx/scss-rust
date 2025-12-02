@@ -1,6 +1,6 @@
 use std::fmt::{self, Write};
 
-use codemap::Span;
+use crate::codemap::Span;
 
 use crate::{ast::CssStmt, error::SassResult, lexer::Lexer, parse::MediaQueryParser};
 

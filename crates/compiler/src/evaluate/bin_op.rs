@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use codemap::Span;
+use crate::codemap::Span;
 
 use crate::{
     common::{BinaryOp, QuoteKind},

@@ -1,7 +1,7 @@
 use core::fmt;
 use std::iter::Iterator;
 
-use codemap::Span;
+use crate::codemap::Span;
 
 use crate::{
     common::BinaryOp,

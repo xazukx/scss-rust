@@ -4,7 +4,7 @@ use std::{
     sync::Arc,
 };
 
-use codemap::Spanned;
+use crate::codemap::Spanned;
 
 use crate::{
     ast::Mixin,

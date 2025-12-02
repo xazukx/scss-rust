@@ -67,8 +67,6 @@ pub use serializer::{serialize_ast_expr, StyleSerializer};
 #[cfg(feature = "wasm-exports")]
 use wasm_bindgen::prelude::*;
 
-use codemap::CodeMap;
-
 pub use crate::error::{
     PublicSassErrorKind as ErrorKind, SassError as Error, SassResult as Result,
 };
@@ -96,7 +94,8 @@ pub mod sass_ast {
     pub use crate::ast::*;
 }
 
-pub use codemap;
+pub mod codemap;
+use crate::codemap::CodeMap;
 
 mod ast;
 mod builtin;

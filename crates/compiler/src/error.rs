@@ -6,7 +6,7 @@ use std::{
     sync::Arc,
 };
 
-use codemap::{Span, SpanLoc};
+use crate::codemap::{Span, SpanLoc};
 
 pub type SassResult<T> = Result<T, Box<SassError>>;
 

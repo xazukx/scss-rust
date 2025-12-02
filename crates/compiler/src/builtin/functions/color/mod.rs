@@ -1,4 +1,4 @@
-use codemap::Span;
+use crate::codemap::Span;
 
 use crate::{
     builtin::builtin_imports::Unit,

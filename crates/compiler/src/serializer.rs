@@ -1,6 +1,6 @@
 use std::{io::Write, path::Path};
 
-use codemap::{CodeMap, Span};
+use crate::codemap::{CodeMap, Span};
 
 use crate::{
     ast::{CssStmt, MediaQuery, Style, SupportsRule, AstExpr},

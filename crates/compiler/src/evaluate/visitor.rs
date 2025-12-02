@@ -10,7 +10,7 @@ use std::{
     sync::Arc,
 };
 
-use codemap::{CodeMap, Span, Spanned};
+use crate::codemap::{CodeMap, Span, Spanned};
 use indexmap::IndexSet;
 
 use crate::{

@@ -7,7 +7,7 @@ use std::{
     sync::Arc,
 };
 
-use codemap::{Span, Spanned};
+use crate::codemap::{Span, Spanned};
 
 use crate::{
     ast::*,

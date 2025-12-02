@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use codemap::Span;
+use crate::codemap::Span;
 
 use crate::{ast::*, error::SassResult, lexer::Lexer, ContextFlags, Options, Token};
 

@@ -4,6 +4,7 @@ members = [
     "crates/include_sass",
     "crates/lib",
 ]
+resolver = "1"
 
 [profile.release]
 debug = 1

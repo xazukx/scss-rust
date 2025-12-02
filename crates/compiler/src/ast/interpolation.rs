@@ -1,4 +1,4 @@
-use codemap::Spanned;
+use crate::codemap::Spanned;
 
 use super::AstExpr;
 
