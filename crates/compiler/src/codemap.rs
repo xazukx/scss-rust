@@ -71,6 +71,10 @@ pub struct Span {
 }
 
 impl Span {
+    pub fn new(low: u32, high: u32) -> Span {
+        Span { low: Pos(low), high: Pos(high) }
+    }
+    
     /// Makes a span from offsets relative to the start of this span.
     ///
     /// # Panics
