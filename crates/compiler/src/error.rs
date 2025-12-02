@@ -49,14 +49,14 @@ impl SassError {
         }
     }
 
-    pub(crate) fn raw(self) -> (String, Span) {
+    pub fn raw(self) -> (String, Span) {
         match self.kind {
             SassErrorKind::Raw(string, span) => (string, span),
             e => unreachable!("unable to get raw of {:?}", e),
         }
     }
 
-    pub(crate) const fn from_loc(message: String, loc: SpanLoc, unicode: bool) -> Self {
+    pub const fn from_loc(message: String, loc: SpanLoc, unicode: bool) -> Self {
         SassError {
             kind: SassErrorKind::ParseError {
                 message,
