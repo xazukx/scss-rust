@@ -49,9 +49,9 @@ impl SassError {
         }
     }
 
-    pub fn raw(self) -> (String, Span) {
-        match self.kind {
-            SassErrorKind::Raw(string, span) => (string, span),
+    pub fn raw(&self) -> (String, Span) {
+        match &self.kind {
+            SassErrorKind::Raw(string, span) => (string.clone(), span.clone()),
             e => unreachable!("unable to get raw of {:?}", e),
         }
     }
