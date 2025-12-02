@@ -1,13 +1,13 @@
 use crate::ast::*;
 
 pub(crate) use at_root_query::AtRootQueryParser;
-pub(crate) use base::BaseParser;
-pub(crate) use css::CssParser;
+pub use base::BaseParser;
+pub use css::CssParser;
 pub(crate) use keyframes::KeyframesSelectorParser;
 pub(crate) use media_query::MediaQueryParser;
-pub(crate) use sass::SassParser;
-pub(crate) use scss::ScssParser;
-pub(crate) use stylesheet::StylesheetParser;
+pub use sass::SassParser;
+pub use scss::ScssParser;
+pub use stylesheet::StylesheetParser;
 
 mod at_root_query;
 mod base;

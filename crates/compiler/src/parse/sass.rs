@@ -6,6 +6,7 @@ use crate::{ast::*, error::SassResult, lexer::Lexer, ContextFlags, Options, Toke
 
 use super::{BaseParser, StylesheetParser};
 
+#[derive(Debug)]
 pub struct SassParser<'a> {
     pub toks: Lexer,
     pub path: &'a Path,

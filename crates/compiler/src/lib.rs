@@ -61,7 +61,6 @@ grass input.scss
 
 use std::path::Path;
 
-use parse::{CssParser, SassParser, StylesheetParser};
 pub use sass_ast::StyleSheet;
 pub use serializer::{serialize_ast_expr, StyleSerializer};
 #[cfg(feature = "wasm-exports")]
@@ -75,7 +74,7 @@ pub use crate::logger::{Logger, NullLogger, StdLogger};
 pub use crate::options::{InputSyntax, Options, OutputStyle};
 pub use crate::{builtin::Builtin, evaluate::Visitor};
 pub(crate) use crate::{context_flags::ContextFlags, lexer::Token};
-use crate::{lexer::Lexer, parse::ScssParser};
+pub use crate::{lexer::Lexer, parse::{CssParser, SassParser, ScssParser, StylesheetParser}};
 
 pub mod sass_value {
     pub use crate::{
