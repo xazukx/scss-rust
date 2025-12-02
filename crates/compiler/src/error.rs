@@ -6,7 +6,7 @@ use std::{
     sync::Arc,
 };
 
-use crate::codemap::{Span, SpanLoc};
+use crate::codemap::{CodeMap, Span, SpanLoc};
 
 pub type SassResult<T> = Result<T, Box<SassError>>;
 
@@ -54,6 +54,18 @@ impl SassError {
             SassErrorKind::Raw(string, span) => (string, span),
             e => unreachable!("unable to get raw of {:?}", e),
         }
+    }
+    
+    pub fn message_and_loc(&self, map: &CodeMap) -> Option<(String, SpanLoc)> {
+        match &self.kind {
+            SassErrorKind::ParseError { message, loc, .. } => Some((message.clone(), loc.clone())),
+            SassErrorKind::Raw(message, span) => Some((message.clone(), map.look_up_span(*span))),
+            _ => None,
+        }
+    }
+    
+    pub fn is_raw(&self) -> bool {
+        matches!(self.kind, SassErrorKind::Raw(..))
     }
 
     pub const fn from_loc(message: String, loc: SpanLoc, unicode: bool) -> Self {
