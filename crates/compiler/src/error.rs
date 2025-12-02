@@ -129,7 +129,7 @@ impl Display for SassError {
             } => (message, loc, *unicode),
             SassErrorKind::FromUtf8Error(..) => return writeln!(f, "Error: Invalid UTF-8."),
             SassErrorKind::IoError(s) => return writeln!(f, "Error: {}", s),
-            SassErrorKind::Raw(..) => unreachable!(),
+            SassErrorKind::Raw(msg, _) => return writeln!(f, "Error: {}", msg),
         };
 
         let first_bar = if unicode { '╷' } else { ',' };
