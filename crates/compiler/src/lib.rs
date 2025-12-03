@@ -62,7 +62,6 @@ grass input.scss
 use std::path::Path;
 
 pub use sass_ast::StyleSheet;
-pub use serializer::{serialize_ast_expr, StyleSerializer};
 #[cfg(feature = "wasm-exports")]
 use wasm_bindgen::prelude::*;
 
@@ -72,6 +71,7 @@ pub use crate::error::{
 pub use crate::fs::{Fs, NullFs, StdFs};
 pub use crate::logger::{Logger, NullLogger, StdLogger};
 pub use crate::options::{InputSyntax, Options, OutputStyle};
+use crate::serializer::StyleSerializer;
 pub use crate::{builtin::Builtin, evaluate::Visitor};
 pub(crate) use crate::{context_flags::ContextFlags, lexer::Token};
 pub use crate::{lexer::Lexer, parse::{CssParser, SassParser, ScssParser, StylesheetParser}};
@@ -110,7 +110,7 @@ mod logger;
 mod options;
 mod parse;
 mod selector;
-mod serializer;
+pub mod serializer;
 mod unit;
 mod utils;
 mod value;
