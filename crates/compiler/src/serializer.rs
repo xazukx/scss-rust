@@ -59,7 +59,7 @@ pub(crate) fn serialize_number(
     Ok(serializer.finish_for_expr())
 }
 
-pub(crate) fn serialize_value(val: &Value, options: &Options, span: Span) -> SassResult<String> {
+pub fn serialize_value(val: &Value, options: &Options, span: Span) -> SassResult<String> {
     let map = CodeMap::new();
     let mut serializer = StyleSerializer::new(options, &map, false, span);
 
