@@ -9,9 +9,9 @@ mod macros;
 fn null_fs_cannot_import() {
     let input = "@import \"__foo\";";
     tempfile!("__foo.scss", "");
-    match grass::from_string(
+    match scss_rust::from_string(
         input.to_string(),
-        &grass::Options::default().fs(&grass::NullFs),
+        &scss_rust::Options::default().fs(&scss_rust::NullFs),
     ) {
         Err(e)
             if e.to_string()
@@ -39,7 +39,7 @@ fn imports_variable() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -65,7 +65,7 @@ fn single_quotes_import() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -86,7 +86,7 @@ fn comma_separated_import() {
 
     assert_eq!(
         "p {\n  color: blue;\n}\n\na {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -103,7 +103,7 @@ fn comma_separated_import_order() {
 
     assert_eq!(
         "@import url(third);\np {\n  color: red;\n}\n\np {\n  color: blue;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -120,7 +120,7 @@ fn comma_separated_import_order_css() {
 
     assert_eq!(
         "@import \"a.css\";\n@import url(third);\np {\n  color: blue;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -139,9 +139,9 @@ fn basic_load_path() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        grass::from_path(
+        scss_rust::from_path(
             "dir-basic_load_path__a/basic_load_path__a.scss",
-            &grass::Options::default().load_path(std::path::Path::new("dir-basic_load_path__b"))
+            &scss_rust::Options::default().load_path(std::path::Path::new("dir-basic_load_path__b"))
         )
         .unwrap()
     );
@@ -162,9 +162,9 @@ fn load_path_same_directory() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        grass::from_path(
+        scss_rust::from_path(
             "dir-load_path_same_directory__a/load_path_same_directory__a.scss",
-            &grass::Options::default().load_path(std::path::Path::new("."))
+            &scss_rust::Options::default().load_path(std::path::Path::new("."))
         )
         .unwrap()
     );
@@ -199,7 +199,7 @@ fn finds_name_scss() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -217,7 +217,7 @@ fn finds_underscore_name_scss() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -238,7 +238,7 @@ fn chained_imports() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -254,7 +254,7 @@ fn imports_plain_css() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -270,7 +270,7 @@ fn imports_import_only_scss() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -286,7 +286,7 @@ fn imports_sass_file() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -302,7 +302,7 @@ fn imports_absolute_scss() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -319,7 +319,7 @@ fn imports_same_file_twice() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n\na {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -337,7 +337,7 @@ fn imports_same_file_thrice() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n\na {\n  color: red;\n}\n\na {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 #[test]
@@ -353,7 +353,7 @@ fn imports_self() {
     assert_err!(
         input,
         "Error: This file is already being loaded.",
-        &grass::Options::default().fs(&fs)
+        &scss_rust::Options::default().fs(&fs)
     );
 }
 
@@ -369,7 +369,7 @@ fn imports_explicit_file_extension() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
     );
 }
 
@@ -394,7 +394,7 @@ fn potentially_conflicting_directory_and_file() {
 
     assert_eq!(
         "a {\n  color: right;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default()).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default()).expect(input)
     );
 }
 
@@ -415,7 +415,7 @@ fn finds_index_file_no_underscore() {
 
     assert_eq!(
         "a {\n  color: right;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default()).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default()).expect(input)
     );
 }
 
@@ -436,7 +436,7 @@ fn finds_index_file_with_underscore() {
 
     assert_eq!(
         "a {\n  color: right;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default()).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default()).expect(input)
     );
 }
 
@@ -462,9 +462,9 @@ fn potentially_conflicting_directory_and_file_from_load_path() {
 
     assert_eq!(
         "a {\n  color: right;\n}\n",
-        &grass::from_string(
+        &scss_rust::from_string(
             input.to_string(),
-            &grass::Options::default().load_path(&Path::new(
+            &scss_rust::Options::default().load_path(&Path::new(
                 "potentially_conflicting_directory_and_file_from_load_path__a"
             ))
         )
@@ -487,7 +487,7 @@ fn chained_imports_in_directory() {
     tempfile!("chained_imports_in_directory__c.scss", "$a: red;");
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default()).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default()).expect(input)
     );
 }
 
@@ -507,7 +507,7 @@ fn explicit_file_extension_import_inside_index_file() {
     );
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default()).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default()).expect(input)
     );
 }
 error!(

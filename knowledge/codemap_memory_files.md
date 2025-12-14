@@ -17,7 +17,7 @@ While `CodeMap` is an internal component of the SCSS compiler that tracks file l
 Implement the `Fs` trait or use `TestFs` for testing:
 
 ```rust
-use grass::{Fs, Options};
+use scss_rust::{Fs, Options};
 use std::path::Path;
 use std::collections::BTreeMap;
 
@@ -88,7 +88,7 @@ fs.add_file("main.scss", r#"
 "#);
 
 let options = Options::default().fs(Box::new(fs));
-let result = grass::from_string("main.scss".to_string(), &options)?;
+let result = scss_rust::from_string("main.scss".to_string(), &options)?;
 ```
 
 ### 3. File Resolution with @use

@@ -32,7 +32,7 @@
 # 0.13.0
 
 - fix various module system bugs when combined with `@import`. this is potentially breaking in rare cases where users were relying on the incorrect behavior
-- expose more AST internals in `scss_compiler`
+- expose more AST internals in `scss_rust`
 - allow building docs with stable/beta rust compiler
 - support `...$keys` argument to `map-get(..)`/`map.get(..)` (#83)
 
@@ -44,7 +44,7 @@
 
 No visible changes for users of the `grass` crate
 
-Exposes more internals of the `scss_compiler` crate, allowing for custom functions implemented in rust to be accessed from Sass.
+Exposes more internals of the `scss_rust` crate, allowing for custom functions implemented in rust to be accessed from Sass.
 
 # 0.12.2
 
@@ -62,7 +62,7 @@ Exposes more internals of the `scss_compiler` crate, allowing for custom functio
 
 # 0.12.1
 
-- add `grass::include!` macro to make it easier to include CSS at compile time
+- add `scss_rust::include!` macro to make it easier to include CSS at compile time
 - various optimizations improving the bootstrap benchmark by ~30% and the bulma benchmark by ~15%
 - improve error message for complex units in calculations
 - more accurate formatting of named arguments in arglists when passed to `inspect(..)`
@@ -125,8 +125,8 @@ a {
 
 # 0.11.2
 
-- make `grass::Error` a `Send` type
-- expose more internals of `grass::Error`, allowing for custom formatting
+- make `scss_rust::Error` a `Send` type
+- expose more internals of `scss_rust::Error`, allowing for custom formatting
 - fix WASM builds
 
 # 0.11.1

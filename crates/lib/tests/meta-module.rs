@@ -36,7 +36,7 @@ fn mixin_exists_module() {
     tempfile!("mixin_exists_module.scss", "@mixin foo {}");
     assert_eq!(
         "a {\n  color: true;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default()).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default()).expect(input)
     );
 }
 
@@ -46,7 +46,7 @@ fn load_css_simple() {
     tempfile!("load_css_simple.scss", "a { color: red; }");
     assert_eq!(
         "a a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default()).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default()).expect(input)
     );
 }
 
@@ -56,7 +56,7 @@ fn load_css_explicit_args() {
     tempfile!("load_css_explicit_args.scss", "a { color: red; }");
     assert_eq!(
         "a a {\n  color: red;\n}\n",
-        &grass::from_string(input.to_string(), &grass::Options::default()).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default()).expect(input)
     );
 }
 

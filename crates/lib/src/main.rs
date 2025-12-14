@@ -6,7 +6,7 @@ use std::{
 
 use clap::{builder::PossibleValue, value_parser, Arg, ArgAction, Command, ValueEnum};
 
-use grass::{from_path, from_string, Options, OutputStyle};
+use scss_rust::{from_path, from_string, Options, OutputStyle};
 
 #[derive(Eq, PartialEq, Debug, Clone, Copy)]
 pub enum Style {

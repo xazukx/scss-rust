@@ -7,7 +7,7 @@ use crate::{builtin::Builtin, Fs, Logger, StdFs, StdLogger};
 
 /// Configuration for Sass compilation
 ///
-/// The simplest usage is `grass::Options::default()`; however, a builder pattern
+/// The simplest usage is `scss_rust::Options::default()`; however, a builder pattern
 /// is also exposed to offer more control.
 #[derive(Debug)]
 pub struct Options<'a> {

@@ -1,4 +1,4 @@
-use scss_compiler::OutputStyle;
+use scss_rust::OutputStyle;
 
 #[macro_use]
 mod macros;
@@ -70,9 +70,9 @@ fn charset_not_allowed_expanded() {
 
     assert_eq!(
         "a {\n  color: 🦆;\n}\n",
-        &grass::from_string(
+        &scss_rust::from_string(
             input.to_string(),
-            &grass::Options::default().allows_charset(false)
+            &scss_rust::Options::default().allows_charset(false)
         )
         .expect(input)
     );
@@ -88,9 +88,9 @@ fn charset_not_allowed_compressed() {
 
     assert_eq!(
         "a{color:🦆}",
-        &grass::from_string(
+        &scss_rust::from_string(
             input.to_string(),
-            &grass::Options::default()
+            &scss_rust::Options::default()
                 .allows_charset(false)
                 .style(OutputStyle::Compressed)
         )

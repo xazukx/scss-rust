@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::path::Path;
 
-use grass::Fs;
+use scss_rust::Fs;
 
 #[macro_use]
 mod macros;
@@ -104,9 +104,9 @@ body {
 "#,
     );
 
-    let options = grass::Options::default().fs(&fs);
+    let options = scss_rust::Options::default().fs(&fs);
     
-    let result = grass::from_string(
+    let result = scss_rust::from_string(
         std::fs::read_to_string("main.scss").unwrap_or_else(|_| {
             // If file doesn't exist on disk, use the in-memory content
             "@use \"components\" as comp;
@@ -218,9 +218,9 @@ $grid-gutter: 1rem;
 "#,
     );
 
-    let options = grass::Options::default().fs(&fs);
+    let options = scss_rust::Options::default().fs(&fs);
     
-    let result = grass::from_string(
+    let result = scss_rust::from_string(
         r#"
 @use "base/typography";
 @use "layout/grid" as *;
@@ -289,9 +289,9 @@ $font-size: 14px !default;
 "#,
     );
 
-    let options = grass::Options::default().fs(&fs);
+    let options = scss_rust::Options::default().fs(&fs);
     
-    let result = grass::from_string(
+    let result = scss_rust::from_string(
         r#"
 .theme {
     color: #ff6b6b;
@@ -381,9 +381,9 @@ $brand-color: #5c7cfa;
 "#,
     );
 
-    let options = grass::Options::default().fs(&fs);
+    let options = scss_rust::Options::default().fs(&fs);
     
-    let result = grass::from_string(
+    let result = scss_rust::from_string(
         r#"
 .header {
     background-color: #5c7cfa;

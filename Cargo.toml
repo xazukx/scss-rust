@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "crates/compiler",
+    "crates/scss_rust",
     "crates/include_sass",
     "crates/lib",
 ]

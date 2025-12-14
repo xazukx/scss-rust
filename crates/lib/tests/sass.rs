@@ -1,4 +1,4 @@
-use grass::InputSyntax;
+use scss_rust::InputSyntax;
 
 #[macro_use]
 mod macros;
@@ -11,13 +11,13 @@ a
     foo: bar
 "#,
     "a {\n  color: red;\n  foo: bar;\n}\n",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 test!(
     no_properties,
     r#"a"#,
     "",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 test!(
     nested_styles,
@@ -28,7 +28,7 @@ a
         foo: bar
 "#,
     "a {\n  color: red;\n}\na b {\n  foo: bar;\n}\n",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 test!(
     nested_declarations,
@@ -38,7 +38,7 @@ a
         foo: bar
 "#,
     "a {\n  color: red;\n  color-foo: bar;\n}\n",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 test!(
     variable_declaration,
@@ -48,7 +48,7 @@ a
     color: $a
 "#,
     "a {\n  color: red;\n}\n",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 test!(
     silent_comment_before_variable_declaration,
@@ -60,7 +60,7 @@ a
     color: $a
 "#,
     "a {\n  color: red;\n}\n",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 test!(
     two_silent_comments_before_variable_declaration,
@@ -73,13 +73,13 @@ a
     color: $a
 "#,
     "a {\n  color: red;\n}\n",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 test!(
     unclosed_loud_comment,
     r#"/* loud"#,
     "/* loud */\n",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 test!(
     special_mixin_and_include_characters,
@@ -91,7 +91,7 @@ a
     +foo
 "#,
     "a {\n  color: red;\n}\n",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 test!(
     style_rule_begins_with_plus,
@@ -101,7 +101,7 @@ a
         color: red
 "#,
     "a + b {\n  color: red;\n}\n",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 test!(
     if_else_if_else,
@@ -115,7 +115,7 @@ a
         color: orange
 "#,
     "a {\n  color: orange;\n}\n",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 error!(
     multiline_comment_in_value_position,
@@ -124,17 +124,17 @@ $a: /*
 loud */ red
 "#,
     "Error: expected */.",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 error!(
     document_starts_with_spaces,
     r#"    "#,
     "Error: Indenting at the beginning of the document is illegal.",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );
 error!(
     document_starts_with_tab,
     "\t",
     "Error: Indenting at the beginning of the document is illegal.",
-    grass::Options::default().input_syntax(InputSyntax::Sass)
+    scss_rust::Options::default().input_syntax(InputSyntax::Sass)
 );

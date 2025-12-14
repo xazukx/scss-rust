@@ -2,7 +2,7 @@
 name = "include_sass"
 version = "0.13.4"
 edition = "2021"
-description = "Internal implementation of the grass::include! macro"
+description = "Internal implementation of the scss_rust::include! macro"
 readme = "../../README.md"
 license = "MIT"
 categories = ["web-programming"]
@@ -17,7 +17,7 @@ proc-macro = true
 
 [dependencies]
 syn = { version = "2", default-features = false }
-scss_compiler = { path = "../compiler", version = "=0.13.4" }
+scss_rust = { path = "../scss_rust", version = "=0.13.4" }
 quote = { version = "1.0.23", default-features = false }
 
 [features]

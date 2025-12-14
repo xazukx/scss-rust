@@ -14,10 +14,10 @@ implementation.
 
 ## Use as library
 ```
-fn main() -> Result<(), Box<grass::Error>> {
-    let css = grass::from_string(
+fn main() -> Result<(), Box<scss_rust::Error>> {
+    let css = scss_rust::from_string(
         "a { b { color: &; } }".to_owned(),
-        &grass::Options::default()
+        &scss_rust::Options::default()
     )?;
     assert_eq!(css, "a b {\n  color: a b;\n}\n");
     Ok(())
@@ -64,14 +64,14 @@ grass input.scss
     unknown_lints,
 )]
 
-pub use scss_compiler::{
+pub use scss_rust::{
     from_path, from_string, Error, ErrorKind, Fs, InputSyntax, Logger, NullFs, NullLogger, Options,
     OutputStyle, Result, StdFs, StdLogger,
 };
 
 /// Include CSS in your binary at compile time from a Sass source file
 ///
-/// `static CSS: &str = grass::include!("../static/_index.scss");`
+/// `static CSS: &str = scss_rust::include!("../static/_index.scss");`
 ///
 /// This requires the `"macro"` feature, which is not enabled by default.
 ///

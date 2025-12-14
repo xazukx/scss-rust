@@ -14,11 +14,11 @@ implementation.
 
 ## Use as library
 ```
-# use scss_compiler as grass;
-fn main() -> Result<(), Box<grass::Error>> {
-    let css = grass::from_string(
+# use scss_rust as grass;
+fn main() -> Result<(), Box<scss_rust::Error>> {
+    let css = scss_rust::from_string(
         "a { b { color: &; } }".to_owned(),
-        &grass::Options::default().style(grass::OutputStyle::Compressed)
+        &scss_rust::Options::default().style(scss_rust::OutputStyle::Compressed)
     )?;
     assert_eq!(css, "a b{color:a b}");
     Ok(())
@@ -285,9 +285,9 @@ pub fn compile_with_files<P: AsRef<Path>>(
 /// n.b. `grass` does not currently support files or paths that are not valid UTF-8
 ///
 /// ```
-/// # use scss_compiler as grass;
-/// fn main() -> Result<(), Box<grass::Error>> {
-///     let css = grass::from_path("input.scss", &grass::Options::default())?;
+/// # use scss_rust as grass;
+/// fn main() -> Result<(), Box<scss_rust::Error>> {
+///     let css = scss_rust::from_path("input.scss", &scss_rust::Options::default())?;
 ///     Ok(())
 /// }
 /// ```
@@ -299,9 +299,9 @@ pub fn from_path<P: AsRef<Path>>(p: P, options: &Options) -> Result<String> {
 /// Compile CSS from a string
 ///
 /// ```
-/// # use scss_compiler as grass;
-/// fn main() -> Result<(), Box<grass::Error>> {
-///     let css = grass::from_string("a { b { color: &; } }".to_string(), &grass::Options::default())?;
+/// # use scss_rust as grass;
+/// fn main() -> Result<(), Box<scss_rust::Error>> {
+///     let css = scss_rust::from_string("a { b { color: &; } }".to_string(), &scss_rust::Options::default())?;
 ///     assert_eq!(css, "a b {\n  color: a b;\n}\n");
 ///     Ok(())
 /// }

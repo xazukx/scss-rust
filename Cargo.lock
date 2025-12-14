@@ -149,19 +149,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "grass"
-version = "0.13.4"
-dependencies = [
- "clap",
- "getrandom",
- "include_sass",
- "paste",
- "scss_compiler",
- "tempfile",
- "wasm-bindgen",
-]
-
-[[package]]
 name = "hashbrown"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -181,7 +168,7 @@ name = "include_sass"
 version = "0.13.4"
 dependencies = [
  "quote",
- "scss_compiler",
+ "scss_rust",
  "syn",
 ]
 
@@ -353,7 +340,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "scss_compiler"
+name = "scss_lib"
+version = "0.13.4"
+dependencies = [
+ "clap",
+ "getrandom",
+ "include_sass",
+ "paste",
+ "scss_rust",
+ "tempfile",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "scss_rust"
 version = "0.13.4"
 dependencies = [
  "indexmap",

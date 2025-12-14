@@ -9,7 +9,7 @@
 //!
 //! # Example
 //! ```
-//! use scss_compiler::codemap::CodeMap;
+//! use scss_rust::codemap::CodeMap;
 //! let mut codemap = CodeMap::new();
 //! let file = codemap.add_file("test.rs".to_string(), "fn test(){\n    println!(\"Hello\");\n}\n".to_string());
 //! let string_literal_span = file.span.subspan(24, 31);

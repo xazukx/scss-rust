@@ -1,8 +1,6 @@
 use std::path::PathBuf;
 
-use scss_compiler as grass;
-
-use grass::{
+use scss_rust::{
 	Options,
 	OutputStyle,
 	parse_stylesheet,
@@ -113,7 +111,7 @@ fn collect_stylesheet_symbols(body: &[AstStmt], results: &mut TraversalResults) 
 	}
 }
 
-fn main() -> Result<(), Box<grass::Error>> {
+fn main() -> Result<(), Box<scss_rust::Error>> {
 	let scss = r#"
 $primary-color: #333;
 $spacing-unit: 8px;
@@ -209,7 +207,7 @@ $spacing-unit: 8px;
 		}
 	}
 
-	let css = grass::from_string(scss, &options)?;
+	let css = scss_rust::from_string(scss, &options)?;
 
 	println!("\nCompiled CSS:\n\n{}", css);
 

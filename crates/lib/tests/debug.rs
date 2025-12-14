@@ -7,8 +7,8 @@ mod macros;
 fn simple_debug() {
     let input = "@debug 2";
     let logger = TestLogger::default();
-    let options = grass::Options::default().logger(&logger);
-    let output = grass::from_string(input.to_string(), &options).expect(input);
+    let options = scss_rust::Options::default().logger(&logger);
+    let output = scss_rust::from_string(input.to_string(), &options).expect(input);
     assert_eq!(&output, "");
     assert_eq!(&[String::from("2")], logger.debug_messages().as_slice());
     assert_eq!(&[] as &[String], logger.warning_messages().as_slice());
@@ -18,8 +18,8 @@ fn simple_debug() {
 fn simple_debug_with_semicolon() {
     let input = "@debug 2;";
     let logger = TestLogger::default();
-    let options = grass::Options::default().logger(&logger);
-    let output = grass::from_string(input.to_string(), &options).expect(input);
+    let options = scss_rust::Options::default().logger(&logger);
+    let output = scss_rust::from_string(input.to_string(), &options).expect(input);
     assert_eq!(&output, "");
     assert_eq!(&[String::from("2")], logger.debug_messages().as_slice());
     assert_eq!(&[] as &[String], logger.warning_messages().as_slice());
@@ -29,8 +29,8 @@ fn simple_debug_with_semicolon() {
 fn debug_while_quiet() {
     let input = "@debug 2;";
     let logger = TestLogger::default();
-    let options = grass::Options::default().logger(&logger).quiet(true);
-    let output = grass::from_string(input.to_string(), &options).expect(input);
+    let options = scss_rust::Options::default().logger(&logger).quiet(true);
+    let output = scss_rust::from_string(input.to_string(), &options).expect(input);
     assert_eq!(&output, "");
     assert_eq!(&[] as &[String], logger.debug_messages().as_slice());
     assert_eq!(&[] as &[String], logger.warning_messages().as_slice());
