@@ -156,8 +156,7 @@ impl CodeMap {
         Default::default()
     }
 
-    /// Adds a file with the given name and contents.
-    ///
+    /// Adds a file with the given name and contents. It will not replace files with the same name.
     /// Use the returned `File` and its `.span` property to create `Spans`
     /// representing substrings of the file.
     pub fn add_file(&mut self, name: String, source: String) -> Arc<CodeFile> {
@@ -170,6 +169,32 @@ impl CodeMap {
                 .map(|(p, _)| low + (p + 1) as u64),
         );
 
+        let file = Arc::new(CodeFile {
+            span: Span { low, high },
+            name,
+            source,
+            lines,
+        });
+
+        self.files.push(file.clone());
+        file
+    }
+    
+    /// Adds a file with the given name and contents, replacing any existing file with the same name.
+    /// Use the returned `File` and its `.span` property to create `Spans`
+    /// representing substrings of the file.
+    pub fn add_or_replace_file(&mut self, name: String, source: String) -> Arc<CodeFile> {
+        let low = self.end_pos() + 1;
+        let high = low + source.len() as u64;
+        let mut lines = vec![low];
+        lines.extend(
+            source
+                .match_indices('\n')
+                .map(|(p, _)| low + (p + 1) as u64),
+        );
+
+        self.files.retain(|f| f.name != name);
+        
         let file = Arc::new(CodeFile {
             span: Span { low, high },
             name,
