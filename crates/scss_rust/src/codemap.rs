@@ -147,7 +147,7 @@ impl<T> Deref for Spanned<T> {
 /// A data structure recording source code files for position lookup.
 #[derive(Default, Debug)]
 pub struct CodeMap {
-    files: Vec<Arc<CodeFile>>,
+    pub files: Vec<Arc<CodeFile>>,
 }
 
 impl CodeMap {
@@ -182,11 +182,28 @@ impl CodeMap {
     }
 
     fn end_pos(&self) -> Pos {
-        self.files.last().map(|x| x.span.high).unwrap_or(Pos(0))
+        self.files.last().map_or(Pos(0), |x| x.span.high)
+    }
+
+    fn unknown_file() -> Arc<CodeFile> {
+        Arc::new(CodeFile {
+            span: Span {
+                low: Pos(0),
+                high: Pos(0),
+            },
+            name: "<unknown>".to_owned(),
+            source: String::new(),
+            lines: vec![Pos(0)],
+        })
+    }
+
+    /// Looks up the `File` with the specified name.
+    pub fn get_file(&self, file_name: &str) -> Option<&Arc<CodeFile>> {
+        self.files.iter().find(|file| file.name == file_name)
     }
 
     /// Looks up the `File` that contains the specified position.
-    pub fn find_file(&self, pos: Pos) -> &Arc<CodeFile> {
+    pub fn get_file_at_pos(&self, pos: Pos) -> Option<&Arc<CodeFile>> {
         self.files
             .binary_search_by(|file| {
                 if file.span.high < pos {
@@ -199,28 +216,58 @@ impl CodeMap {
             })
             .ok()
             .map(|i| &self.files[i])
-            .expect("Mapping unknown source location")
+    }
+
+    /// Looks up the `File` that contains the specified position.
+    pub fn find_file(&self, pos: Pos) -> Option<&Arc<CodeFile>> {
+        self.files
+            .binary_search_by(|file| {
+                if file.span.high < pos {
+                    Ordering::Less
+                } else if file.span.low > pos {
+                    Ordering::Greater
+                } else {
+                    Ordering::Equal
+                }
+            })
+            .ok()
+            .map(|i| &self.files[i])
     }
 
     /// Gets the file, line, and column represented by a `Pos`.
     pub fn look_up_pos(&self, pos: Pos) -> Loc {
-        let file = self.find_file(pos);
-        let position = file.find_line_col(pos);
-        Loc {
-            file: file.clone(),
-            position,
+        match self.find_file(pos) {
+            Some(file) => {
+                let position = file.find_line_col(pos);
+                Loc {
+                    file: file.clone(),
+                    position,
+                }
+            }
+            None => Loc {
+                file: Self::unknown_file(),
+                position: LineCol { line: 0, column: 0 },
+            },
         }
     }
 
     /// Gets the file and its line and column ranges represented by a `Span`.
     pub fn look_up_span(&self, span: Span) -> SpanLoc {
-        let file = self.find_file(span.low);
-        let begin = file.find_line_col(span.low);
-        let end = file.find_line_col(span.high);
-        SpanLoc {
-            file: file.clone(),
-            begin,
-            end,
+        match self.find_file(span.low) {
+            Some(file) => {
+                let begin = file.find_line_col(span.low);
+                let end = file.find_line_col(span.high);
+                SpanLoc {
+                    file: file.clone(),
+                    begin,
+                    end,
+                }
+            }
+            None => SpanLoc {
+                file: Self::unknown_file(),
+                begin: LineCol { line: 0, column: 0 },
+                end: LineCol { line: 0, column: 0 },
+            },
         }
     }
 }
@@ -304,9 +351,14 @@ impl CodeFile {
     ///  * If the line number is out of range
     pub fn line_span(&self, line: usize) -> Span {
         assert!(line < self.lines.len());
+        let high = if let Some(high) = self.lines.get(line + 1) {
+            *high
+        } else {
+            self.span.high
+        };
         Span {
             low: self.lines[line],
-            high: *self.lines.get(line + 1).unwrap_or(&self.span.high),
+            high,
         }
     }
 
@@ -420,34 +472,38 @@ fn test_codemap() {
     let f1 = codemap.add_file("test1.rs".to_string(), "abcd\nefghij\nqwerty".to_string());
     let f2 = codemap.add_file("test2.rs".to_string(), "foo\nbar".to_string());
 
-    assert_eq!(codemap.find_file(f1.span.low()).name(), "test1.rs");
-    assert_eq!(codemap.find_file(f1.span.high()).name(), "test1.rs");
-    assert_eq!(codemap.find_file(f2.span.low()).name(), "test2.rs");
-    assert_eq!(codemap.find_file(f2.span.high()).name(), "test2.rs");
+    assert_eq!(codemap.find_file(f1.span.low()).map(|f| f.name()), Some("test1.rs"));
+    assert_eq!(codemap.find_file(f1.span.high()).map(|f| f.name()), Some("test1.rs"));
+    assert_eq!(codemap.find_file(f2.span.low()).map(|f| f.name()), Some("test2.rs"));
+    assert_eq!(codemap.find_file(f2.span.high()).map(|f| f.name()), Some("test2.rs"));
 
     let x = f1.span.subspan(5, 10);
     let f = codemap.find_file(x.low);
-    assert_eq!(f.name, "test1.rs");
-    assert_eq!(
-        f.find_line_col(f.span.low()),
-        LineCol { line: 0, column: 0 }
-    );
-    assert_eq!(
-        f.find_line_col(f.span.low() + 4),
-        LineCol { line: 0, column: 4 }
-    );
-    assert_eq!(
-        f.find_line_col(f.span.low() + 5),
-        LineCol { line: 1, column: 0 }
-    );
-    assert_eq!(
-        f.find_line_col(f.span.low() + 16),
-        LineCol { line: 2, column: 4 }
-    );
+    assert_eq!(f.map(|f| f.name.as_str()), Some("test1.rs"));
+    if let Some(f) = f {
+        assert_eq!(
+            f.find_line_col(f.span.low()),
+            LineCol { line: 0, column: 0 }
+        );
+        assert_eq!(
+            f.find_line_col(f.span.low() + 4),
+            LineCol { line: 0, column: 4 }
+        );
+        assert_eq!(
+            f.find_line_col(f.span.low() + 5),
+            LineCol { line: 1, column: 0 }
+        );
+        assert_eq!(
+            f.find_line_col(f.span.low() + 16),
+            LineCol { line: 2, column: 4 }
+        );
+    } else {
+        panic!("file not found");
+    }
 
     let x = f2.span.subspan(4, 7);
-    assert_eq!(codemap.find_file(x.low()).name(), "test2.rs");
-    assert_eq!(codemap.find_file(x.high()).name(), "test2.rs");
+    assert_eq!(codemap.find_file(x.low()).map(|f| f.name()), Some("test2.rs"));
+    assert_eq!(codemap.find_file(x.high()).map(|f| f.name()), Some("test2.rs"));
 }
 
 #[test]
