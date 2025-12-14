@@ -1,6 +1,6 @@
 use std::{iter::Peekable, str::Chars, sync::Arc};
 
-use crate::codemap::{File, Span};
+use crate::codemap::{CodeFile, Span};
 
 const FORM_FEED: char = '\x0C';
 
@@ -151,7 +151,7 @@ impl<'a> Iterator for TokenLexer<'a> {
 }
 
 impl Lexer {
-    pub fn new_from_file(file: &Arc<File>) -> Self {
+    pub fn new_from_file(file: &Arc<CodeFile>) -> Self {
         let buf = TokenLexer::new(file.source().chars().peekable()).collect();
         Self::new(buf, file.span, false)
     }

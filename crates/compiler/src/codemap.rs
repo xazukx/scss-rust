@@ -147,7 +147,7 @@ impl<T> Deref for Spanned<T> {
 /// A data structure recording source code files for position lookup.
 #[derive(Default, Debug)]
 pub struct CodeMap {
-    files: Vec<Arc<File>>,
+    files: Vec<Arc<CodeFile>>,
 }
 
 impl CodeMap {
@@ -160,7 +160,7 @@ impl CodeMap {
     ///
     /// Use the returned `File` and its `.span` property to create `Spans`
     /// representing substrings of the file.
-    pub fn add_file(&mut self, name: String, source: String) -> Arc<File> {
+    pub fn add_file(&mut self, name: String, source: String) -> Arc<CodeFile> {
         let low = self.end_pos() + 1;
         let high = low + source.len() as u64;
         let mut lines = vec![low];
@@ -170,7 +170,7 @@ impl CodeMap {
                 .map(|(p, _)| low + (p + 1) as u64),
         );
 
-        let file = Arc::new(File {
+        let file = Arc::new(CodeFile {
             span: Span { low, high },
             name,
             source,
@@ -186,7 +186,7 @@ impl CodeMap {
     }
 
     /// Looks up the `File` that contains the specified position.
-    pub fn find_file(&self, pos: Pos) -> &Arc<File> {
+    pub fn find_file(&self, pos: Pos) -> &Arc<CodeFile> {
         self.files
             .binary_search_by(|file| {
                 if file.span.high < pos {
@@ -226,7 +226,7 @@ impl CodeMap {
 }
 
 /// A `CodeMap`'s record of a source file.
-pub struct File {
+pub struct CodeFile {
     /// The span representing the entire file.
     pub span: Span,
 
@@ -240,7 +240,7 @@ pub struct File {
     lines: Vec<Pos>,
 }
 
-impl File {
+impl CodeFile {
     /// Gets the name of the file
     pub fn name(&self) -> &str {
         &self.name
@@ -328,22 +328,22 @@ impl File {
     }
 }
 
-impl fmt::Debug for File {
+impl fmt::Debug for CodeFile {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(f, "File({:?})", self.name)
     }
 }
 
-impl PartialEq for File {
+impl PartialEq for CodeFile {
     /// Compares by identity
-    fn eq(&self, other: &File) -> bool {
+    fn eq(&self, other: &CodeFile) -> bool {
         self as *const _ == other as *const _
     }
 }
 
-impl Eq for File {}
+impl Eq for CodeFile {}
 
-impl Hash for File {
+impl Hash for CodeFile {
     fn hash<H: Hasher>(&self, hasher: &mut H) {
         self.span.hash(hasher);
     }
@@ -362,7 +362,7 @@ pub struct LineCol {
 /// A file, and a line and column within it.
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Loc {
-    pub file: Arc<File>,
+    pub file: Arc<CodeFile>,
     pub position: LineCol,
 }
 
@@ -383,7 +383,7 @@ impl fmt::Display for Loc {
 /// A file, and a line and column range within it.
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct SpanLoc {
-    pub file: Arc<File>,
+    pub file: Arc<CodeFile>,
     pub begin: LineCol,
     pub end: LineCol,
 }
