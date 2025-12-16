@@ -60,6 +60,7 @@ grass input.scss
 )]
 
 use std::path::Path;
+use std::sync::Arc;
 
 pub use sass_ast::StyleSheet;
 #[cfg(feature = "wasm-exports")]
@@ -128,7 +129,7 @@ pub fn parse_stylesheet<P: AsRef<Path>>(
     // todo: much of this logic is duplicated in `from_string_with_file_name`
     let mut map = CodeMap::new();
     let path = file_name.as_ref();
-    let file = map.add_file(path.to_string_lossy().into_owned(), input);
+    let file = map.add_file(Arc::new(path.to_string_lossy().into_owned()), Arc::new(input));
     let empty_span = file.span.subspan(0, 0);
     let lexer = Lexer::new_from_file(&file);
 
@@ -163,7 +164,7 @@ fn from_string_with_file_name<P: AsRef<Path>>(
 ) -> Result<String> {
     let mut map = CodeMap::new();
     let path = file_name.as_ref();
-    let file = map.add_file(path.to_string_lossy().into_owned(), input);
+    let file = map.add_file(Arc::new(path.to_string_lossy().into_owned()), Arc::new(input));
     let empty_span = file.span.subspan(0, 0);
     let lexer = Lexer::new_from_file(&file);
 
@@ -225,7 +226,7 @@ pub fn compile_with_files<P: AsRef<Path>>(
     code_map: &mut CodeMap,
 ) -> Result<(String, StyleSheet)> {
     let path = file_name.as_ref();
-    let file = code_map.add_file(path.to_string_lossy().into_owned(), input);
+    let file = code_map.add_file(Arc::new(path.to_string_lossy().into_owned()), Arc::new(input));
     let empty_span = file.span.subspan(0, 0);
     let lexer = Lexer::new_from_file(&file);
 

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 
 use scss_rust::{
 	Lexer, Options, OutputStyle, ScssParser, StylesheetParser, Visitor, codemap::{CodeMap, Spanned}, sass_ast::{AstImport, AstStmt, AstVariableDecl}, sass_value::Value, serializer::{StyleSerializer, serialize_value}
@@ -154,7 +154,7 @@ $spacing-unit: 8px;
 
 	let mut map = CodeMap::new();
 	let path = PathBuf::from("input.scss");
-	let file = map.add_file(path.to_string_lossy().into_owned(), scss.to_owned());
+	let file = map.add_file(Arc::new(path.to_string_lossy().into_owned()), Arc::new(scss.to_owned()));
 	let empty_span = file.span.subspan(0, 0);
 	let lexer = Lexer::new_from_file(&file);
 

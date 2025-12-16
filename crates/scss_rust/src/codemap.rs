@@ -10,8 +10,9 @@
 //! # Example
 //! ```
 //! use scss_rust::codemap::CodeMap;
+//! use std::sync::Arc;
 //! let mut codemap = CodeMap::new();
-//! let file = codemap.add_file("test.rs".to_string(), "fn test(){\n    println!(\"Hello\");\n}\n".to_string());
+//! let file = codemap.add_file(Arc::new("test.rs".to_string()), Arc::new("fn test(){\n    println!(\"Hello\");\n}\n".to_string()));
 //! let string_literal_span = file.span.subspan(24, 31);
 //!
 //! let location = codemap.look_up_span(string_literal_span);
@@ -159,7 +160,7 @@ impl CodeMap {
     /// Adds a file with the given name and contents. It will not replace files with the same name.
     /// Use the returned `File` and its `.span` property to create `Spans`
     /// representing substrings of the file.
-    pub fn add_file(&mut self, name: String, source: String) -> Arc<CodeFile> {
+    pub fn add_file(&mut self, name: Arc<String>, source: Arc<String>) -> Arc<CodeFile> {
         let low = self.end_pos() + 1;
         let high = low + source.len() as u64;
         let mut lines = vec![low];
@@ -183,7 +184,7 @@ impl CodeMap {
     /// Adds a file with the given name and contents, replacing any existing file with the same name.
     /// Use the returned `File` and its `.span` property to create `Spans`
     /// representing substrings of the file.
-    pub fn add_or_replace_file(&mut self, name: String, source: String) -> Arc<CodeFile> {
+    pub fn add_or_replace_file(&mut self, name: Arc<String>, source: Arc<String>) -> Arc<CodeFile> {
         let low = self.end_pos() + 1;
         let high = low + source.len() as u64;
         let mut lines = vec![low];
@@ -193,7 +194,7 @@ impl CodeMap {
                 .map(|(p, _)| low + (p + 1) as u64),
         );
 
-        self.files.retain(|f| f.name != name);
+        self.files.retain(|f| *f.name != *name);
         
         let file = Arc::new(CodeFile {
             span: Span { low, high },
@@ -216,15 +217,15 @@ impl CodeMap {
                 low: Pos(0),
                 high: Pos(0),
             },
-            name: "<unknown>".to_owned(),
-            source: String::new(),
+            name: Arc::new("<unknown>".to_owned()),
+            source: Arc::new(String::new()),
             lines: vec![Pos(0)],
         })
     }
 
     /// Looks up the `File` with the specified name.
     pub fn get_file(&self, file_name: &str) -> Option<&Arc<CodeFile>> {
-        self.files.iter().find(|file| file.name == file_name)
+        self.files.iter().find(|file| **file.name == *file_name)
     }
 
     /// Looks up the `File` that contains the specified position.
@@ -303,10 +304,10 @@ pub struct CodeFile {
     pub span: Span,
 
     /// The filename as it would be displayed in an error message.
-    name: String,
+    name: Arc<String>,
 
     /// Contents of the file.
-    source: String,
+    source: Arc<String>,
 
     /// Byte positions of line beginnings.
     lines: Vec<Pos>,
@@ -494,8 +495,8 @@ impl fmt::Display for SpanLoc {
 #[test]
 fn test_codemap() {
     let mut codemap = CodeMap::new();
-    let f1 = codemap.add_file("test1.rs".to_string(), "abcd\nefghij\nqwerty".to_string());
-    let f2 = codemap.add_file("test2.rs".to_string(), "foo\nbar".to_string());
+    let f1 = codemap.add_file(Arc::new("test1.rs".to_string()), Arc::new("abcd\nefghij\nqwerty".to_string()));
+    let f2 = codemap.add_file(Arc::new("test2.rs".to_string()), Arc::new("foo\nbar".to_string()));
 
     assert_eq!(codemap.find_file(f1.span.low()).map(|f| f.name()), Some("test1.rs"));
     assert_eq!(codemap.find_file(f1.span.high()).map(|f| f.name()), Some("test1.rs"));
@@ -535,7 +536,7 @@ fn test_codemap() {
 fn test_issue2() {
     let mut codemap = CodeMap::new();
     let content = "a \nxyz\r\n";
-    let file = codemap.add_file("<test>".to_owned(), content.to_owned());
+    let file = codemap.add_file(Arc::new("<test>".to_owned()), Arc::new(content.to_owned()));
 
     let span = file.span.subspan(2, 3);
     assert_eq!(
@@ -556,7 +557,7 @@ fn test_issue2() {
 fn test_multibyte() {
     let mut codemap = CodeMap::new();
     let content = "65°00′N 18°00′W 汉语\n🔬";
-    let file = codemap.add_file("<test>".to_owned(), content.to_owned());
+    let file = codemap.add_file(Arc::new("<test>".to_owned()), Arc::new(content.to_owned()));
 
     assert_eq!(
         codemap.look_up_pos(file.span.low() + 21),

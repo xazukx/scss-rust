@@ -897,8 +897,8 @@ impl<'a> Visitor<'a> {
             }
 
             let file = self.map.add_file(
-                name.to_string_lossy().into(),
-                String::from_utf8(self.options.fs.read(&name)?)?,
+                Arc::new(name.to_string_lossy().into_owned()),
+                Arc::new(String::from_utf8(self.options.fs.read(&name)?)?),
             );
 
             let old_is_use_allowed = self.flags.is_use_allowed();
