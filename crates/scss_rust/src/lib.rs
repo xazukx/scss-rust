@@ -103,7 +103,7 @@ mod common;
 mod context_flags;
 mod error;
 mod evaluate;
-mod fs;
+pub mod fs;
 mod interner;
 mod lexer;
 mod logger;

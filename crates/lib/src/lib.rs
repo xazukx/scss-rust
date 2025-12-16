@@ -65,7 +65,7 @@ grass input.scss
 )]
 
 pub use scss_rust::{
-    from_path, from_string, Error, ErrorKind, Fs, InputSyntax, Logger, NullFs, NullLogger, Options,
+    from_path, from_string, Error, ErrorKind, fs, Fs, InputSyntax, Logger, NullFs, NullLogger, Options,
     OutputStyle, Result, StdFs, StdLogger,
 };
 
