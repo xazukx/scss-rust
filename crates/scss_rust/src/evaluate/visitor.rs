@@ -105,7 +105,7 @@ pub struct CallableContentBlock {
 pub struct Visitor<'a> {
     pub(crate) declaration_name: Option<String>,
     pub(crate) flags: ContextFlags,
-    pub(crate) env: Environment,
+    pub env: Environment,
     pub(crate) style_rule_ignoring_at_root: Option<ExtendedSelector>,
     // avoid emitting duplicate warnings for the same span
     pub(crate) warnings_emitted: HashSet<Span>,
@@ -192,13 +192,16 @@ impl<'a> Visitor<'a> {
         Ok(style_sheet)
     }
 
-    pub fn finish(mut self) -> Vec<CssStmt> {
+    pub fn finish(&mut self) -> Vec<CssStmt> {
         let mut finished_tree = self.css_tree.finish();
+
         if self.import_nodes.is_empty() {
             finished_tree
         } else {
-            self.import_nodes.append(&mut finished_tree);
-            self.import_nodes
+            let mut import_nodes = Vec::new();
+            mem::swap(&mut self.import_nodes, &mut import_nodes);
+            import_nodes.append(&mut finished_tree);
+            import_nodes
         }
     }
 

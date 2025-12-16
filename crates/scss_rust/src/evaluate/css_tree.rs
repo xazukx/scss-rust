@@ -40,10 +40,10 @@ impl CssTree {
         self.stmts[idx.0].borrow_mut()
     }
 
-    pub fn finish(self) -> Vec<CssStmt> {
+    pub fn finish(&mut self) -> Vec<CssStmt> {
         let mut idx = 1;
 
-        while idx < self.stmts.len() - 1 {
+        while idx + 1 < self.stmts.len() {
             if self.stmts[idx].borrow().is_none() || !self.has_children(CssTreeIdx(idx)) {
                 idx += 1;
                 continue;
@@ -54,9 +54,10 @@ impl CssTree {
             idx += 1;
         }
 
-        self.stmts
-            .into_iter()
-            .filter_map(RefCell::into_inner)
+        self
+            .stmts
+            .iter_mut()
+            .filter_map(|cell| cell.get_mut().take())
             .collect()
     }
 

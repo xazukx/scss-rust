@@ -1,15 +1,12 @@
 use std::path::PathBuf;
 
 use scss_rust::{
-	Options,
-	OutputStyle,
-	parse_stylesheet,
-	sass_ast::{AstImport, AstStmt, AstVariableDecl},
+	Lexer, Options, OutputStyle, ScssParser, StylesheetParser, Visitor, codemap::{CodeMap, Spanned}, sass_ast::{AstImport, AstStmt, AstVariableDecl}, sass_value::Value, serializer::{StyleSerializer, serialize_value}
 };
 
 #[derive(Debug, Default)]
 struct TraversalResults {
-	scss_vars: Vec<AstVariableDecl>,
+	scss_vars: Vec<(AstVariableDecl, Value)>,
 	css_custom_props: Vec<String>,
 	imports: Vec<String>,
 	mixins: Vec<String>,
@@ -17,14 +14,24 @@ struct TraversalResults {
 	uses: Vec<String>,
 }
 
-fn collect_stylesheet_symbols(body: &[AstStmt], results: &mut TraversalResults) {
+fn collect_stylesheet_symbols(body: &[AstStmt], visitor: &mut Visitor<'_>, results: &mut TraversalResults) {
 	for stmt in body {
 		match stmt {
 			AstStmt::VariableDecl(decl) => {
-				results.scss_vars.push(decl.clone());
+				let value = visitor.env.get_var(
+					Spanned {
+						node: decl.name,
+						span: decl.span,
+					},
+					decl.namespace.clone(),
+				);
+
+				if let Ok(value) = value {
+					results.scss_vars.push((decl.clone(), value));
+				}
 			}
 			AstStmt::RuleSet(rule_set) => {
-				collect_stylesheet_symbols(&rule_set.body, results);
+				collect_stylesheet_symbols(&rule_set.body, visitor, results);
 			}
 			AstStmt::Style(style) => {
 				let name = style.name.initial_plain();
@@ -32,41 +39,41 @@ fn collect_stylesheet_symbols(body: &[AstStmt], results: &mut TraversalResults) 
 					results.css_custom_props.push(name.to_string());
 				}
 
-				collect_stylesheet_symbols(&style.body, results);
+				collect_stylesheet_symbols(&style.body, visitor, results);
 			}
 			AstStmt::If(if_stmt) => {
 				for clause in &if_stmt.if_clauses {
-					collect_stylesheet_symbols(&clause.body, results);
+					collect_stylesheet_symbols(&clause.body, visitor, results);
 				}
 
 				if let Some(else_body) = &if_stmt.else_clause {
-					collect_stylesheet_symbols(else_body, results);
+					collect_stylesheet_symbols(else_body, visitor, results);
 				}
 			}
 			AstStmt::For(for_stmt) => {
-				collect_stylesheet_symbols(&for_stmt.body, results);
+				collect_stylesheet_symbols(&for_stmt.body, visitor, results);
 			}
 			AstStmt::Each(each_stmt) => {
-				collect_stylesheet_symbols(&each_stmt.body, results);
+				collect_stylesheet_symbols(&each_stmt.body, visitor, results);
 			}
 			AstStmt::Media(media_rule) => {
-				collect_stylesheet_symbols(&media_rule.body, results);
+				collect_stylesheet_symbols(&media_rule.body, visitor, results);
 			}
 			AstStmt::While(while_rule) => {
-				collect_stylesheet_symbols(&while_rule.body, results);
+				collect_stylesheet_symbols(&while_rule.body, visitor, results);
 			}
 			AstStmt::FunctionDecl(func) => {
-				collect_stylesheet_symbols(&func.body, results);
+				collect_stylesheet_symbols(&func.body, visitor, results);
 			}
 			AstStmt::Mixin(mixin) => {
 				results.mixins.push(mixin.name.to_string());
-				collect_stylesheet_symbols(&mixin.body, results);
+				collect_stylesheet_symbols(&mixin.body, visitor, results);
 			}
 			AstStmt::AtRootRule(at_root) => {
-				collect_stylesheet_symbols(&at_root.body, results);
+				collect_stylesheet_symbols(&at_root.body, visitor, results);
 			}
 			AstStmt::Supports(supports_rule) => {
-				collect_stylesheet_symbols(&supports_rule.body, results);
+				collect_stylesheet_symbols(&supports_rule.body, visitor, results);
 			}
 			AstStmt::ImportRule(import_rule) => {
 				for import in &import_rule.imports {
@@ -91,7 +98,7 @@ fn collect_stylesheet_symbols(body: &[AstStmt], results: &mut TraversalResults) 
 				results.includes.push(full_name);
 
 				if let Some(content) = &include_stmt.content {
-					collect_stylesheet_symbols(&content.body, results);
+					collect_stylesheet_symbols(&content.body, visitor, results);
 				}
 			}
 			AstStmt::Use(use_rule) => {
@@ -145,19 +152,44 @@ $spacing-unit: 8px;
 	let mut options = Options::default();
 	options = options.style(OutputStyle::Expanded);
 
-	let stylesheet = parse_stylesheet(
-		scss.to_owned(),
-		PathBuf::from("input.scss"),
-		&options,
-	)?;
-	// println!("{stylesheet:#?}");
+	let mut map = CodeMap::new();
+	let path = PathBuf::from("input.scss");
+	let file = map.add_file(path.to_string_lossy().into_owned(), scss.to_owned());
+	let empty_span = file.span.subspan(0, 0);
+	let lexer = Lexer::new_from_file(&file);
+
+	let stylesheet = ScssParser::new(lexer, &options, empty_span, &path).parse()?;
+
+	let mut visitor = Visitor::new(&path, &options, &mut map, empty_span);
+	let stylesheet = visitor.visit_stylesheet(stylesheet)?;
+	let stmts = visitor.finish();
 
 	let mut results = TraversalResults::default();
-	collect_stylesheet_symbols(&stylesheet.body, &mut results);
+	collect_stylesheet_symbols(&stylesheet.body, &mut visitor, &mut results);
+
+	drop(visitor);
+
+	let mut serializer = StyleSerializer::new(&options, &map, false, empty_span);
+	let mut prev_was_group_end = false;
+	let mut prev_requires_semicolon = false;
+	for stmt in stmts {
+		if stmt.is_invisible() {
+			continue;
+		}
+
+		let is_group_end = stmt.is_group_end();
+		let requires_semicolon = StyleSerializer::requires_semicolon(&stmt);
+
+		serializer.visit_group(stmt, prev_was_group_end, prev_requires_semicolon)?;
+
+		prev_was_group_end = is_group_end;
+		prev_requires_semicolon = requires_semicolon;
+	}
+	let css = serializer.finish(prev_requires_semicolon);
 
 	println!("Found {} SCSS variable declarations:\n", results.scss_vars.len());
 
-	for (index, decl) in results.scss_vars.iter().enumerate() {
+	for (index, (decl, value)) in results.scss_vars.iter().enumerate() {
 		let namespace = match &decl.namespace {
 			Some(ns) => ns.node.to_string(),
 			None => String::new(),
@@ -168,8 +200,8 @@ $spacing-unit: 8px;
 		} else {
 			format!("{}.${}", namespace, decl.name)
 		};
-
-		println!("{}: {}", index + 1, full_name);
+	    let serialized_value = serialize_value(&value, &options, empty_span).unwrap_or_else(|_| "error".to_string());
+		println!("{}: {} = {}", index + 1, full_name, serialized_value);
 	}
 
 	if !results.css_custom_props.is_empty() {
@@ -206,8 +238,6 @@ $spacing-unit: 8px;
 			println!("{}: {}", index + 1, name);
 		}
 	}
-
-	let css = scss_rust::from_string(scss, &options)?;
 
 	println!("\nCompiled CSS:\n\n{}", css);
 

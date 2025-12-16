@@ -1,13 +1,12 @@
-use std::{io::Write, path::Path};
+use std::{io::Write};
 
 use crate::codemap::{CodeMap, Span};
 
 use crate::{
-    ast::{CssStmt, MediaQuery, Style, SupportsRule, AstExpr},
+    ast::{CssStmt, MediaQuery, Style, SupportsRule},
     color::{Color, ColorFormat, NAMED_COLORS},
     common::{BinaryOp, Brackets, ListSeparator, QuoteKind},
     error::SassResult,
-    evaluate::Visitor,
     selector::{
         Combinator, ComplexSelector, ComplexSelectorComponent, CompoundSelector, Namespace, Pseudo,
         SelectorList, SimpleSelector,
@@ -46,7 +45,7 @@ pub(crate) fn serialize_calculation_arg(
     Ok(serializer.finish_for_expr())
 }
 
-pub(crate) fn serialize_number(
+pub fn serialize_number(
     number: &SassNumber,
     options: &Options,
     span: Span,
@@ -119,24 +118,6 @@ pub(crate) fn inspect_number(
     serializer.visit_number(number)?;
 
     Ok(serializer.finish_for_expr())
-}
-
-pub fn serialize_ast_expr(
-    path: &Path,
-    expr: &AstExpr,
-    options: &Options,
-    span: Span,
-    code_map: &mut CodeMap,
-) -> SassResult<String> {
-    let mut visitor = Visitor::new(
-        path,
-        options,
-        code_map,
-        span,
-    );
-    
-    let value = visitor.visit_expr(expr.clone())?;
-    serialize_value(&value, options, span)
 }
 
 #[derive(Debug)]
