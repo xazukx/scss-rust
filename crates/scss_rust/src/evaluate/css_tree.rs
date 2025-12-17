@@ -3,12 +3,14 @@ use std::{
     collections::BTreeMap,
 };
 
-use crate::ast::CssStmt;
+use crate::ast::{CssStmt, CssStmtAndModule};
 
 #[derive(Debug, Clone)]
 pub(super) struct CssTree {
     // None is tombstone
     stmts: Vec<RefCell<Option<CssStmt>>>,
+    /// Module name associated with each statement (indexed by CssTreeIdx)
+    module_names: Vec<String>,
     pub parent_to_child: BTreeMap<CssTreeIdx, Vec<CssTreeIdx>>,
     pub child_to_parent: BTreeMap<CssTreeIdx, CssTreeIdx>,
 }
@@ -23,11 +25,13 @@ impl CssTree {
     pub fn new() -> Self {
         let mut tree = Self {
             stmts: Vec::new(),
+            module_names: Vec::new(),
             parent_to_child: BTreeMap::new(),
             child_to_parent: BTreeMap::new(),
         };
 
         tree.stmts.push(RefCell::new(None));
+        tree.module_names.push(String::new()); // Root has empty module name
 
         tree
     }
@@ -40,7 +44,7 @@ impl CssTree {
         self.stmts[idx.0].borrow_mut()
     }
 
-    pub fn finish(&mut self) -> Vec<CssStmt> {
+    pub fn finish(&mut self) -> Vec<CssStmtAndModule> {
         let mut idx = 1;
 
         while idx + 1 < self.stmts.len() {
@@ -57,7 +61,13 @@ impl CssTree {
         self
             .stmts
             .iter_mut()
-            .filter_map(|cell| cell.get_mut().take())
+            .enumerate()
+            .filter_map(|(i, cell)| {
+                cell.get_mut().take().map(|stmt| {
+                    let module_name = self.module_names.get(i).cloned().unwrap_or_default();
+                    CssStmtAndModule::new(stmt, module_name)
+                })
+            })
             .collect()
     }
 
@@ -102,8 +112,8 @@ impl CssTree {
         });
     }
 
-    pub fn add_child(&mut self, child: CssStmt, parent_idx: CssTreeIdx) -> CssTreeIdx {
-        let child_idx = self.add_stmt_inner(child);
+    pub fn add_child(&mut self, child: CssStmt, parent_idx: CssTreeIdx, module_name: String) -> CssTreeIdx {
+        let child_idx = self.add_stmt_inner(child, module_name);
         self.parent_to_child
             .entry(parent_idx)
             .or_default()
@@ -133,16 +143,17 @@ impl CssTree {
         parent_children.last() != Some(&child)
     }
 
-    pub fn add_stmt(&mut self, child: CssStmt, parent: Option<CssTreeIdx>) -> CssTreeIdx {
+    pub fn add_stmt(&mut self, child: CssStmt, parent: Option<CssTreeIdx>, module_name: String) -> CssTreeIdx {
         match parent {
-            Some(parent) => self.add_child(child, parent),
-            None => self.add_child(child, Self::ROOT),
+            Some(parent) => self.add_child(child, parent, module_name),
+            None => self.add_child(child, Self::ROOT, module_name),
         }
     }
 
-    fn add_stmt_inner(&mut self, stmt: CssStmt) -> CssTreeIdx {
+    fn add_stmt_inner(&mut self, stmt: CssStmt, module_name: String) -> CssTreeIdx {
         let idx = CssTreeIdx(self.stmts.len());
         self.stmts.push(RefCell::new(Some(stmt)));
+        self.module_names.push(module_name);
 
         idx
     }

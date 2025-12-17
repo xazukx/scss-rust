@@ -284,7 +284,7 @@ $font-size: 14px !default;
 );
 
 .configured-theme {
-    @extend configurable.theme;
+    @extend configurable, .theme;
 }
 "#,
     );
@@ -293,17 +293,7 @@ $font-size: 14px !default;
     
     let result = scss_rust::from_string(
         r#"
-.theme {
-    color: #ff6b6b;
-    background-color: green;
-    font-size: 18px;
-}
-
-.configured-theme {
-    color: #ff6b6b;
-    background-color: green;
-    font-size: 18px;
-}
+@use "main";
 "#
         .to_string(),
         &options,
@@ -385,20 +375,16 @@ $brand-color: #5c7cfa;
     
     let result = scss_rust::from_string(
         r#"
-.header {
-    background-color: #5c7cfa;
-    padding: 1rem;
-}
-
-.content {
-    border: 1px solid #5c7cfa;
-}
-"#
+        @use "main";
+        "#
         .to_string(),
         &options,
     )
     .expect("Failed to compile SCSS with custom memory FS");
 
+    assert!(result.contains("padding: 1rem"));
     assert!(result.contains("background-color: #5c7cfa"));
     assert!(result.contains("border: 1px solid #5c7cfa"));
+    assert!(result.contains(".header"));
+    assert!(result.contains(".content"));
 }

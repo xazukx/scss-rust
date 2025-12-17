@@ -122,7 +122,7 @@ pub struct Visitor<'a> {
     css_tree: CssTree,
     parent: Option<CssTreeIdx>,
     configuration: Rc<RefCell<Configuration>>,
-    import_nodes: Vec<CssStmt>,
+    import_nodes: Vec<CssStmtAndModule>,
     pub options: &'a Options<'a>,
     pub(crate) map: &'a mut CodeMap,
     // todo: remove
@@ -192,7 +192,7 @@ impl<'a> Visitor<'a> {
         Ok(style_sheet)
     }
 
-    pub fn finish(&mut self) -> Vec<CssStmt> {
+    pub fn finish(&mut self) -> Vec<CssStmtAndModule> {
         let mut finished_tree = self.css_tree.finish();
 
         if self.import_nodes.is_empty() {
@@ -203,6 +203,11 @@ impl<'a> Visitor<'a> {
             import_nodes.append(&mut finished_tree);
             import_nodes
         }
+    }
+
+    /// Returns the current module name (file path as string) for associating CSS statements
+    fn current_module_name(&self) -> String {
+        self.current_import_path.to_string_lossy().to_string()
     }
 
     fn visit_return_rule(&mut self, ret: AstReturn) -> SassResult<Option<Value>> {
@@ -1023,11 +1028,12 @@ impl<'a> Visitor<'a> {
             .transpose()?;
 
         let node = CssStmt::Import(import, modifiers);
+        let module_name = self.current_module_name();
 
         if self.parent.is_some() && self.parent != Some(CssTree::ROOT) {
-            self.css_tree.add_stmt(node, self.parent);
+            self.css_tree.add_stmt(node, self.parent, module_name);
         } else {
-            self.import_nodes.push(node);
+            self.import_nodes.push(CssStmtAndModule::new(node, module_name));
         }
 
         Ok(())
@@ -1160,13 +1166,14 @@ impl<'a> Visitor<'a> {
             return Ok(None);
         }
 
+        let module_name = self.current_module_name();
         let inner_copy = if !included.is_empty() {
             let inner_copy = self
                 .css_tree
                 .get(*included.first().unwrap())
                 .as_ref()
                 .map(CssStmt::copy_without_children);
-            let mut outer_copy = self.css_tree.add_stmt(inner_copy.unwrap(), None);
+            let mut outer_copy = self.css_tree.add_stmt(inner_copy.unwrap(), None, module_name.clone());
 
             for node in &included[1..] {
                 let copy = self
@@ -1176,7 +1183,7 @@ impl<'a> Visitor<'a> {
                     .map(CssStmt::copy_without_children)
                     .unwrap();
 
-                let copy_idx = self.css_tree.add_stmt(copy, None);
+                let copy_idx = self.css_tree.add_stmt(copy, None, module_name.clone());
                 self.css_tree.link_child_to_parent(outer_copy, copy_idx);
 
                 outer_copy = copy_idx;
@@ -1189,7 +1196,7 @@ impl<'a> Visitor<'a> {
                 .get(root)
                 .as_ref()
                 .map(CssStmt::copy_without_children);
-            inner_copy.map(|p| self.css_tree.add_stmt(p, None))
+            inner_copy.map(|p| self.css_tree.add_stmt(p, None, module_name.clone()))
         };
 
         let body = mem::take(&mut at_root_rule.body);
@@ -1501,7 +1508,7 @@ impl<'a> Visitor<'a> {
                 false,
             );
 
-            self.css_tree.add_stmt(stmt, self.parent);
+            self.css_tree.add_stmt(stmt, self.parent, self.current_module_name());
 
             return Ok(None);
         }
@@ -1627,8 +1634,9 @@ impl<'a> Visitor<'a> {
         node: CssStmt,
         through: Option<F>,
     ) -> CssTreeIdx {
+        let module_name = self.current_module_name();
         if self.parent.is_none() || self.parent == Some(CssTree::ROOT) {
-            return self.css_tree.add_stmt(node, self.parent);
+            return self.css_tree.add_stmt(node, self.parent, module_name);
         }
 
         let mut parent = self.parent.unwrap();
@@ -1654,11 +1662,11 @@ impl<'a> Visitor<'a> {
                     .as_ref()
                     .map(CssStmt::copy_without_children)
                     .unwrap();
-                parent = self.css_tree.add_child(parent_node, grandparent);
+                parent = self.css_tree.add_child(parent_node, grandparent, module_name.clone());
             }
         }
 
-        self.css_tree.add_child(node, parent)
+        self.css_tree.add_child(node, parent, module_name)
     }
 
     fn with_parent<F: FnOnce(&mut Self) -> SassResult<()>, FT: Fn(&CssStmt) -> bool>(
@@ -1961,7 +1969,7 @@ impl<'a> Visitor<'a> {
             self.perform_interpolation(comment.text, false)?,
             comment.span,
         );
-        self.css_tree.add_stmt(comment, self.parent);
+        self.css_tree.add_stmt(comment, self.parent, self.current_module_name());
 
         Ok(None)
     }
@@ -3058,6 +3066,7 @@ impl<'a> Visitor<'a> {
                         declared_as_custom_property: is_custom_property,
                     }),
                     self.parent,
+                    self.current_module_name(),
                 );
             } else if name.starts_with("--") {
                 return Err(("Custom property values may not be empty.", style.span).into());

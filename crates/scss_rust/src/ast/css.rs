@@ -1,8 +1,41 @@
+use std::ops::Deref;
+
 use crate::codemap::Span;
 
 use crate::selector::ExtendedSelector;
 
 use super::{MediaRule, Style, UnknownAtRule};
+
+/// A CSS statement associated with the module/file it originated from.
+/// This allows filtering CSS output to only include statements from specific modules.
+#[derive(Debug, Clone)]
+pub struct CssStmtAndModule {
+    /// The CSS statement
+    pub stmt: CssStmt,
+    /// The name/path of the module this statement belongs to
+    pub module_name: String,
+}
+
+impl CssStmtAndModule {
+    /// Creates a new CssStmtAndModule with the given statement and module name
+    pub fn new(stmt: CssStmt, module_name: String) -> Self {
+        Self { stmt, module_name }
+    }
+}
+
+impl Deref for CssStmtAndModule {
+    type Target = CssStmt;
+
+    fn deref(&self) -> &Self::Target {
+        &self.stmt
+    }
+}
+
+impl AsRef<CssStmt> for CssStmtAndModule {
+    fn as_ref(&self) -> &CssStmt {
+        &self.stmt
+    }
+}
 
 #[derive(Debug, Clone)]
 pub enum CssStmt {

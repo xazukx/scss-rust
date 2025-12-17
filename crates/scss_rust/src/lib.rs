@@ -200,16 +200,16 @@ fn from_string_with_file_name<P: AsRef<Path>>(
 
     let mut prev_was_group_end = false;
     let mut prev_requires_semicolon = false;
-    for stmt in stmts {
-        if stmt.is_invisible() {
+    for stmt_and_module in stmts {
+        if stmt_and_module.is_invisible() {
             continue;
         }
 
-        let is_group_end = stmt.is_group_end();
-        let requires_semicolon = StyleSerializer::requires_semicolon(&stmt);
+        let is_group_end = stmt_and_module.is_group_end();
+        let requires_semicolon = StyleSerializer::requires_semicolon(&stmt_and_module);
 
         serializer
-            .visit_group(stmt, prev_was_group_end, prev_requires_semicolon)
+            .visit_group(stmt_and_module.stmt, prev_was_group_end, prev_requires_semicolon)
             .map_err(|e| raw_to_parse_error(&map, *e, options.unicode_error_messages))?;
 
         prev_was_group_end = is_group_end;
@@ -262,16 +262,16 @@ pub fn compile_with_files<P: AsRef<Path>>(
 
     let mut prev_was_group_end = false;
     let mut prev_requires_semicolon = false;
-    for stmt in stmts {
-        if stmt.is_invisible() {
+    for stmt_and_module in stmts {
+        if stmt_and_module.is_invisible() {
             continue;
         }
 
-        let is_group_end = stmt.is_group_end();
-        let requires_semicolon = StyleSerializer::requires_semicolon(&stmt);
+        let is_group_end = stmt_and_module.is_group_end();
+        let requires_semicolon = StyleSerializer::requires_semicolon(&stmt_and_module);
 
         serializer
-            .visit_group(stmt, prev_was_group_end, prev_requires_semicolon)
+            .visit_group(stmt_and_module.stmt, prev_was_group_end, prev_requires_semicolon)
             .map_err(|e| raw_to_parse_error(code_map, *e, options.unicode_error_messages))?;
 
         prev_was_group_end = is_group_end;
