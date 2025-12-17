@@ -131,11 +131,11 @@ impl ArgumentDeclaration {
 
 #[derive(Debug, Clone)]
 pub struct ArgumentInvocation {
-    pub(crate) positional: Vec<AstExpr>,
-    pub(crate) named: BTreeMap<Identifier, AstExpr>,
-    pub(crate) rest: Option<AstExpr>,
-    pub(crate) keyword_rest: Option<AstExpr>,
-    pub(crate) span: Span,
+    pub positional: Vec<AstExpr>,
+    pub named: BTreeMap<Identifier, AstExpr>,
+    pub rest: Option<AstExpr>,
+    pub keyword_rest: Option<AstExpr>,
+    pub span: Span,
 }
 
 impl ArgumentInvocation {
@@ -163,12 +163,12 @@ pub enum MaybeEvaledArguments {
 /// may not come after named ones.
 #[derive(Debug, Clone)]
 pub struct ArgumentResult {
-    pub(crate) positional: Vec<Value>,
-    pub(crate) named: BTreeMap<Identifier, Value>,
-    pub(crate) separator: ListSeparator,
-    pub(crate) span: Span,
+    pub positional: Vec<Value>,
+    pub named: BTreeMap<Identifier, Value>,
+    pub separator: ListSeparator,
+    pub span: Span,
     // todo: hack
-    pub(crate) touched: BTreeSet<usize>,
+    pub touched: BTreeSet<usize>,
 }
 
 impl ArgumentResult {
