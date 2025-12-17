@@ -142,6 +142,12 @@ impl CssStmt {
     }
 }
 
+impl AsRef<CssStmt> for CssStmt {
+    fn as_ref(&self) -> &CssStmt {
+        self
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct KeyframesRuleSet {
     pub selector: Vec<KeyframesSelector>,
