@@ -110,7 +110,7 @@ mod lexer;
 mod logger;
 mod options;
 mod parse;
-mod selector;
+pub mod selector;
 pub mod serializer;
 mod unit;
 mod utils;

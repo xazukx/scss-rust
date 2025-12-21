@@ -11,18 +11,18 @@ pub(crate) use list::*;
 pub(crate) use parse::*;
 pub(crate) use simple::*;
 
-mod attribute;
-mod common;
-mod complex;
-mod compound;
-mod extend;
-mod list;
-mod parse;
-mod simple;
+pub mod attribute;
+pub mod common;
+pub mod complex;
+pub mod compound;
+pub mod extend;
+pub mod list;
+pub mod parse;
+pub mod simple;
 
 // todo: delete this selector wrapper
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Selector(pub(crate) SelectorList);
+pub struct Selector(pub SelectorList);
 
 impl Selector {
     /// Small wrapper around `SelectorList`'s method that turns an empty parent selector

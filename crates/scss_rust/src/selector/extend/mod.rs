@@ -14,7 +14,7 @@ use super::{
     SelectorList, SimpleSelector,
 };
 
-pub(crate) use extended_selector::ExtendedSelector;
+pub use extended_selector::ExtendedSelector;
 use extended_selector::SelectorHashSet;
 use extension::Extension;
 pub(crate) use functions::unify_complex;

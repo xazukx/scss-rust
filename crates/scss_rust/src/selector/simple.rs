@@ -1,6 +1,7 @@
 use std::{
     fmt::{self, Write},
     hash::{Hash, Hasher},
+    mem,
 };
 
 use crate::codemap::Span;
@@ -169,6 +170,24 @@ impl SimpleSelector {
 
     pub fn is_type(&self) -> bool {
         matches!(self, Self::Type(..))
+    }
+
+    pub fn replace_text(&mut self, new_text: String) -> Option<()> {
+        match self {
+            Self::Placeholder(name) | Self::Id(name) | Self::Class(name) => {
+                *name = new_text;
+                Some(())
+            }
+            Self::Type(name) => {
+                name.ident = new_text;
+                Some(())
+            }
+            _ => None,
+        }
+    }
+
+    pub fn matches_variant(&self, other: &Self) -> bool {
+        mem::discriminant(self) == mem::discriminant(other)
     }
 
     pub fn unify(self, compound: Vec<Self>) -> Option<Vec<Self>> {
