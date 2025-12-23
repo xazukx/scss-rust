@@ -375,7 +375,11 @@ impl Module {
 
         match scope.variables.get(name.node) {
             Some(v) => Ok(v),
-            None => Err(("Undefined variable.", name.span).into()),
+            None => Err((
+                format!("Undefined variable '{}'.", name.node.as_str()),
+                name.span,
+            )
+                .into()),
         }
     }
 
@@ -394,7 +398,11 @@ impl Module {
     pub fn update_var(&mut self, name: Spanned<Identifier>, value: Value) -> SassResult<()> {
         let scope = match self {
             Self::Builtin { .. } => {
-                return Err(("Cannot modify built-in variable.", name.span).into())
+                return Err((
+                    format!("Cannot modify built-in variable '{}'.", name.node.as_str()),
+                    name.span,
+                )
+                    .into())
             }
             Self::Environment { scope, .. }
             | Self::Forwarded(ForwardedModule { scope, .. })
@@ -402,7 +410,11 @@ impl Module {
         };
 
         if scope.variables.insert(name.node, value).is_none() {
-            return Err(("Undefined variable.", name.span).into());
+            return Err((
+                format!("Undefined variable '{}'.", name.node.as_str()),
+                name.span,
+            )
+                .into());
         }
 
         Ok(())
@@ -413,7 +425,11 @@ impl Module {
 
         match scope.mixins.get(name.node) {
             Some(v) => Ok(v),
-            None => Err(("Undefined mixin.", name.span).into()),
+            None => Err((
+                format!("Undefined mixin '{}'.", name.node.as_str()),
+                name.span,
+            )
+                .into()),
         }
     }
 

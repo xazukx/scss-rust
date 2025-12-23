@@ -229,7 +229,7 @@ error!(
 );
 error!(
     undefined_mixin,
-    "a {@include foo;}", "Error: Undefined mixin."
+    "a {@include foo;}", "Error: Undefined mixin 'foo'."
 );
 error!(
     body_missing_closing_curly_brace,

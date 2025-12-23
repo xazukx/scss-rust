@@ -154,7 +154,11 @@ impl Scopes {
             }
         }
 
-        Err(("Undefined variable.", name.span).into())
+        Err((
+            format!("Undefined variable '{}'.", name.node.as_str()),
+            name.span,
+        )
+            .into())
     }
 
     pub fn var_exists(&self, name: Identifier) -> bool {
@@ -191,7 +195,11 @@ impl Scopes {
             }
         }
 
-        Err(("Undefined mixin.", name.span).into())
+        Err((
+            format!("Undefined mixin '{}'.", name.node.as_str()),
+            name.span,
+        )
+            .into())
     }
 
     pub fn mixin_exists(&self, name: Identifier) -> bool {

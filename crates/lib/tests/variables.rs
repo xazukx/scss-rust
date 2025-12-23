@@ -395,7 +395,7 @@ error!(
 );
 error!(
     undefined_variable,
-    "a {color: $a;}", "Error: Undefined variable."
+    "a {color: $a;}", "Error: Undefined variable 'a'."
 );
 error!(
     invalid_escape,

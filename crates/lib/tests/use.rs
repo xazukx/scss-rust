@@ -378,7 +378,7 @@ fn use_variable_redeclaration_var_dne() {
     let input = "@use \"use_variable_redeclaration_var_dne\" as mod;\nmod.$a: red;";
     tempfile!("use_variable_redeclaration_var_dne.scss", "");
 
-    assert_err!("Error: Undefined variable.", input);
+    assert_err!("Error: Undefined variable 'a'.", input);
 }
 
 #[test]
@@ -535,7 +535,7 @@ fn use_function_can_use_scope_from_own_module() {
 fn use_variable_redeclaration_builtin() {
     let input = "@use \"sass:math\";\nmath.$e: red;";
 
-    assert_err!("Error: Cannot modify built-in variable.", input);
+    assert_err!("Error: Cannot modify built-in variable 'e'.", input);
 }
 
 #[test]
