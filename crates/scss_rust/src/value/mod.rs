@@ -236,6 +236,7 @@ impl Value {
                 OutputStyle::Expanded
             }),
             span,
+            false,
         )
     }
 

@@ -200,7 +200,7 @@ $spacing-unit: 8px;
 		} else {
 			format!("{}.${}", namespace, decl.name)
 		};
-	    let serialized_value = serialize_value(&value, &options, empty_span).unwrap_or_else(|_| "error".to_string());
+	    let serialized_value = serialize_value(&value, &options, empty_span, true).unwrap_or_else(|_| "error".to_string());
 		println!("{}: {} = {}", index + 1, full_name, serialized_value);
 	}
 
