@@ -165,12 +165,11 @@ impl PartialOrd for Identifier {
 impl Identifier {
     fn from_str(s: &str) -> Self {
         let original = InternedString::get_or_intern(s);
-        let canonical = if s.contains('_') {
-            InternedString::get_or_intern(s.replace('_', "-"))
-        } else {
-            original
-        };
-        Identifier { original, canonical }
+        let canonical = InternedString::get_or_intern(s.replace('_', "-"));
+        Identifier {
+            original,
+            canonical,
+        }
     }
 
     pub fn is_public(&self) -> bool {

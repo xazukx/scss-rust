@@ -55,7 +55,7 @@ impl SassError {
             e => unreachable!("unable to get raw of {:?}", e),
         }
     }
-    
+
     pub fn message_and_loc(&self, map: &CodeMap) -> Option<(String, SpanLoc)> {
         match &self.kind {
             SassErrorKind::ParseError { message, loc, .. } => Some((message.clone(), loc.clone())),
@@ -63,7 +63,7 @@ impl SassError {
             _ => None,
         }
     }
-    
+
     pub fn is_raw(&self) -> bool {
         matches!(self.kind, SassErrorKind::Raw(..))
     }

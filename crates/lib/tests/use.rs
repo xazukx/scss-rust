@@ -202,7 +202,8 @@ fn global_variable_exists_private() {
 
     assert_eq!(
         "a {\n  color: true;\n  color: false;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -226,7 +227,8 @@ fn use_user_defined_as() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n\na {\n  color: red;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -250,7 +252,8 @@ fn use_user_defined_function() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -577,7 +580,8 @@ fn include_mixin_with_star_namespace() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -597,7 +601,8 @@ fn include_variable_with_star_namespace() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -622,7 +627,8 @@ fn include_function_with_star_namespace() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -664,7 +670,8 @@ fn use_with_through_forward_multiple() {
 
     assert_eq!(
         "in-left {\n  c: from input;\n}\n\nin-right {\n  d: from input;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -685,7 +692,8 @@ fn module_functions_empty() {
 
     assert_eq!(
         "a {\n  b: ();\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -717,7 +725,8 @@ fn module_functions_through_forward() {
 
     assert_eq!(
         "a {\n  b: (\"foo\": get-function(\"foo\"));\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -808,7 +817,8 @@ fn import_module_using_same_builtin_module() {
 
     assert_eq!(
         "",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -841,7 +851,8 @@ fn import_module_using_same_builtin_module_has_styles() {
 
     assert_eq!(
         "a {\n  color: red;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -872,7 +883,8 @@ fn use_member_global_variable_assignment_toplevel() {
 
     assert_eq!(
         "a {\n  b: new value;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 

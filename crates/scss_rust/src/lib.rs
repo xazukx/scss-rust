@@ -75,7 +75,10 @@ pub use crate::options::{InputSyntax, Options, OutputStyle};
 use crate::serializer::StyleSerializer;
 pub use crate::{builtin::Builtin, evaluate::Visitor};
 pub(crate) use crate::{context_flags::ContextFlags, lexer::Token};
-pub use crate::{lexer::Lexer, parse::{CssParser, SassParser, ScssParser, StylesheetParser}};
+pub use crate::{
+    lexer::Lexer,
+    parse::{CssParser, SassParser, ScssParser, StylesheetParser},
+};
 
 pub mod sass_value {
     pub use crate::{
@@ -129,7 +132,10 @@ pub fn parse_stylesheet<P: AsRef<Path>>(
     // todo: much of this logic is duplicated in `from_string_with_file_name`
     let mut map = CodeMap::new();
     let path = file_name.as_ref();
-    let file = map.add_file(Arc::new(path.to_string_lossy().into_owned()), Arc::new(input));
+    let file = map.add_file(
+        Arc::new(path.to_string_lossy().into_owned()),
+        Arc::new(input),
+    );
     let empty_span = file.span.subspan(0, 0);
     let lexer = Lexer::new_from_file(&file);
 
@@ -144,9 +150,7 @@ pub fn parse_stylesheet<P: AsRef<Path>>(
         InputSyntax::Sass => {
             SassParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
         }
-        InputSyntax::Css => {
-            CssParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
-        }
+        InputSyntax::Css => CssParser::new(lexer, options, empty_span, file_name.as_ref()).parse(),
     };
 
     let stylesheet = match stylesheet {
@@ -164,7 +168,10 @@ fn from_string_with_file_name<P: AsRef<Path>>(
 ) -> Result<String> {
     let mut map = CodeMap::new();
     let path = file_name.as_ref();
-    let file = map.add_file(Arc::new(path.to_string_lossy().into_owned()), Arc::new(input));
+    let file = map.add_file(
+        Arc::new(path.to_string_lossy().into_owned()),
+        Arc::new(input),
+    );
     let empty_span = file.span.subspan(0, 0);
     let lexer = Lexer::new_from_file(&file);
 
@@ -179,9 +186,7 @@ fn from_string_with_file_name<P: AsRef<Path>>(
         InputSyntax::Sass => {
             SassParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
         }
-        InputSyntax::Css => {
-            CssParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
-        }
+        InputSyntax::Css => CssParser::new(lexer, options, empty_span, file_name.as_ref()).parse(),
     };
 
     let stylesheet = match stylesheet {
@@ -209,7 +214,11 @@ fn from_string_with_file_name<P: AsRef<Path>>(
         let requires_semicolon = StyleSerializer::requires_semicolon(&stmt_and_module);
 
         serializer
-            .visit_group(stmt_and_module.stmt, prev_was_group_end, prev_requires_semicolon)
+            .visit_group(
+                stmt_and_module.stmt,
+                prev_was_group_end,
+                prev_requires_semicolon,
+            )
             .map_err(|e| raw_to_parse_error(&map, *e, options.unicode_error_messages))?;
 
         prev_was_group_end = is_group_end;
@@ -226,7 +235,10 @@ pub fn compile_with_files<P: AsRef<Path>>(
     code_map: &mut CodeMap,
 ) -> Result<(String, StyleSheet)> {
     let path = file_name.as_ref();
-    let file = code_map.add_file(Arc::new(path.to_string_lossy().into_owned()), Arc::new(input));
+    let file = code_map.add_file(
+        Arc::new(path.to_string_lossy().into_owned()),
+        Arc::new(input),
+    );
     let empty_span = file.span.subspan(0, 0);
     let lexer = Lexer::new_from_file(&file);
 
@@ -241,20 +253,30 @@ pub fn compile_with_files<P: AsRef<Path>>(
         InputSyntax::Sass => {
             SassParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
         }
-        InputSyntax::Css => {
-            CssParser::new(lexer, options, empty_span, file_name.as_ref()).parse()
-        }
+        InputSyntax::Css => CssParser::new(lexer, options, empty_span, file_name.as_ref()).parse(),
     };
 
     let stylesheet = match stylesheet {
         Ok(v) => v,
-        Err(e) => return Err(raw_to_parse_error(code_map, *e, options.unicode_error_messages)),
+        Err(e) => {
+            return Err(raw_to_parse_error(
+                code_map,
+                *e,
+                options.unicode_error_messages,
+            ))
+        }
     };
 
     let mut visitor = Visitor::new(path, options, code_map, empty_span);
     let stylesheet = match visitor.visit_stylesheet(stylesheet) {
         Ok(v) => v,
-        Err(e) => return Err(raw_to_parse_error(code_map, *e, options.unicode_error_messages)),
+        Err(e) => {
+            return Err(raw_to_parse_error(
+                code_map,
+                *e,
+                options.unicode_error_messages,
+            ))
+        }
     };
     let stmts = visitor.finish();
 
@@ -271,7 +293,11 @@ pub fn compile_with_files<P: AsRef<Path>>(
         let requires_semicolon = StyleSerializer::requires_semicolon(&stmt_and_module);
 
         serializer
-            .visit_group(stmt_and_module.stmt, prev_was_group_end, prev_requires_semicolon)
+            .visit_group(
+                stmt_and_module.stmt,
+                prev_was_group_end,
+                prev_requires_semicolon,
+            )
             .map_err(|e| raw_to_parse_error(code_map, *e, options.unicode_error_messages))?;
 
         prev_was_group_end = is_group_end;

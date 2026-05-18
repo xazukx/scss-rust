@@ -58,8 +58,7 @@ impl CssTree {
             idx += 1;
         }
 
-        self
-            .stmts
+        self.stmts
             .iter_mut()
             .enumerate()
             .filter_map(|(i, cell)| {
@@ -112,7 +111,12 @@ impl CssTree {
         });
     }
 
-    pub fn add_child(&mut self, child: CssStmt, parent_idx: CssTreeIdx, module_name: String) -> CssTreeIdx {
+    pub fn add_child(
+        &mut self,
+        child: CssStmt,
+        parent_idx: CssTreeIdx,
+        module_name: String,
+    ) -> CssTreeIdx {
         let child_idx = self.add_stmt_inner(child, module_name);
         self.parent_to_child
             .entry(parent_idx)
@@ -143,7 +147,12 @@ impl CssTree {
         parent_children.last() != Some(&child)
     }
 
-    pub fn add_stmt(&mut self, child: CssStmt, parent: Option<CssTreeIdx>, module_name: String) -> CssTreeIdx {
+    pub fn add_stmt(
+        &mut self,
+        child: CssStmt,
+        parent: Option<CssTreeIdx>,
+        module_name: String,
+    ) -> CssTreeIdx {
         match parent {
             Some(parent) => self.add_child(child, parent, module_name),
             None => self.add_child(child, Self::ROOT, module_name),

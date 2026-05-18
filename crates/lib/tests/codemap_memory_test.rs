@@ -105,7 +105,7 @@ body {
     );
 
     let options = scss_rust::Options::default().fs(&fs);
-    
+
     let result = scss_rust::from_string(
         std::fs::read_to_string("main.scss").unwrap_or_else(|_| {
             // If file doesn't exist on disk, use the in-memory content
@@ -219,7 +219,7 @@ $grid-gutter: 1rem;
     );
 
     let options = scss_rust::Options::default().fs(&fs);
-    
+
     let result = scss_rust::from_string(
         r#"
 @use "base/typography";
@@ -290,7 +290,7 @@ $font-size: 14px !default;
     );
 
     let options = scss_rust::Options::default().fs(&fs);
-    
+
     let result = scss_rust::from_string(
         r#"
 @use "main";
@@ -322,7 +322,8 @@ impl CustomMemoryFs {
     }
 
     pub fn add_file(&mut self, path: &str, content: &str) {
-        self.files.insert(Path::new(path).to_path_buf(), content.to_string());
+        self.files
+            .insert(Path::new(path).to_path_buf(), content.to_string());
     }
 }
 
@@ -372,7 +373,7 @@ $brand-color: #5c7cfa;
     );
 
     let options = scss_rust::Options::default().fs(&fs);
-    
+
     let result = scss_rust::from_string(
         r#"
         @use "main";

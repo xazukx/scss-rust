@@ -65,8 +65,8 @@ grass input.scss
 )]
 
 pub use scss_rust::{
-    from_path, from_string, Error, ErrorKind, fs, Fs, InputSyntax, Logger, NullFs, NullLogger, Options,
-    OutputStyle, Result, StdFs, StdLogger,
+    from_path, from_string, fs, Error, ErrorKind, Fs, InputSyntax, Logger, NullFs, NullLogger,
+    Options, OutputStyle, Result, StdFs, StdLogger,
 };
 
 /// Include CSS in your binary at compile time from a Sass source file

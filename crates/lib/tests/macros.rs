@@ -5,8 +5,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use scss_rust::{Fs, Logger};
 use scss_rust::codemap::SpanLoc;
+use scss_rust::{Fs, Logger};
 
 #[macro_export]
 macro_rules! test {

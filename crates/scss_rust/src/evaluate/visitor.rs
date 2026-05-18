@@ -1033,7 +1033,8 @@ impl<'a> Visitor<'a> {
         if self.parent.is_some() && self.parent != Some(CssTree::ROOT) {
             self.css_tree.add_stmt(node, self.parent, module_name);
         } else {
-            self.import_nodes.push(CssStmtAndModule::new(node, module_name));
+            self.import_nodes
+                .push(CssStmtAndModule::new(node, module_name));
         }
 
         Ok(())
@@ -1173,7 +1174,9 @@ impl<'a> Visitor<'a> {
                 .get(*included.first().unwrap())
                 .as_ref()
                 .map(CssStmt::copy_without_children);
-            let mut outer_copy = self.css_tree.add_stmt(inner_copy.unwrap(), None, module_name.clone());
+            let mut outer_copy =
+                self.css_tree
+                    .add_stmt(inner_copy.unwrap(), None, module_name.clone());
 
             for node in &included[1..] {
                 let copy = self
@@ -1508,7 +1511,8 @@ impl<'a> Visitor<'a> {
                 false,
             );
 
-            self.css_tree.add_stmt(stmt, self.parent, self.current_module_name());
+            self.css_tree
+                .add_stmt(stmt, self.parent, self.current_module_name());
 
             return Ok(None);
         }
@@ -1662,7 +1666,9 @@ impl<'a> Visitor<'a> {
                     .as_ref()
                     .map(CssStmt::copy_without_children)
                     .unwrap();
-                parent = self.css_tree.add_child(parent_node, grandparent, module_name.clone());
+                parent = self
+                    .css_tree
+                    .add_child(parent_node, grandparent, module_name.clone());
             }
         }
 
@@ -1969,7 +1975,8 @@ impl<'a> Visitor<'a> {
             self.perform_interpolation(comment.text, false)?,
             comment.span,
         );
-        self.css_tree.add_stmt(comment, self.parent, self.current_module_name());
+        self.css_tree
+            .add_stmt(comment, self.parent, self.current_module_name());
 
         Ok(None)
     }

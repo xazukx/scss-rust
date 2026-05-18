@@ -1,4 +1,4 @@
-use std::{io::Write};
+use std::io::Write;
 
 use crate::codemap::{CodeMap, Span};
 
@@ -45,11 +45,7 @@ pub(crate) fn serialize_calculation_arg(
     Ok(serializer.finish_for_expr())
 }
 
-pub fn serialize_number(
-    number: &SassNumber,
-    options: &Options,
-    span: Span,
-) -> SassResult<String> {
+pub fn serialize_number(number: &SassNumber, options: &Options, span: Span) -> SassResult<String> {
     let map = CodeMap::new();
     let mut serializer = StyleSerializer::new(options, &map, false, span);
 
@@ -58,7 +54,12 @@ pub fn serialize_number(
     Ok(serializer.finish_for_expr())
 }
 
-pub fn serialize_value(val: &Value, options: &Options, span: Span, inspect: bool) -> SassResult<String> {
+pub fn serialize_value(
+    val: &Value,
+    options: &Options,
+    span: Span,
+    inspect: bool,
+) -> SassResult<String> {
     let map = CodeMap::new();
     let mut serializer = StyleSerializer::new(options, &map, inspect, span);
 

@@ -2,10 +2,10 @@
 
 use std::{cell::RefCell, collections::HashSet, path::PathBuf};
 
-use scss_rust::StdFs;
 use proc_macro::TokenStream;
 #[cfg(not(feature = "nightly"))]
 use quote::format_ident;
+use scss_rust::StdFs;
 use syn::{parse_macro_input, LitStr};
 
 use quote::__private::TokenStream as TokenStream2;
@@ -100,9 +100,7 @@ pub fn include_sass(item: TokenStream) -> TokenStream {
 
     let css = match scss_rust::from_path(
         value,
-        &options
-            .fs(&fs)
-            .style(scss_rust::OutputStyle::Compressed),
+        &options.fs(&fs).style(scss_rust::OutputStyle::Compressed),
     ) {
         Ok(css) => css,
         Err(e) => {

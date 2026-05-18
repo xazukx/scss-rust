@@ -63,10 +63,7 @@ pub struct UnprefixedMapView<V: fmt::Debug + Clone, T: MapView<Value = V> + Clon
 );
 
 #[derive(Debug, Clone)]
-pub struct PrefixedMapView<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone>(
-    pub T,
-    pub String,
-);
+pub struct PrefixedMapView<V: fmt::Debug + Clone, T: MapView<Value = V> + Clone>(pub T, pub String);
 
 impl<T: fmt::Debug + Clone> MapView for BaseMapView<T> {
     type Value = T;

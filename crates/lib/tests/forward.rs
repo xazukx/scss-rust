@@ -119,7 +119,8 @@ fn through_forward_with_as() {
 
     assert_eq!(
         "c {\n  d: configured;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 #[test]
@@ -150,7 +151,8 @@ fn through_forward_with_unconfigured() {
 
     assert_eq!(
         "c {\n  a: from downstream;\n  b: from midstream;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -178,7 +180,8 @@ fn member_visibility_variable_declaration() {
 
     assert_eq!(
         "b {\n  c: new value;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -205,7 +208,8 @@ fn member_import_precedence_top_level() {
 
     assert_eq!(
         "b {\n  c: in-upstream;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -233,7 +237,8 @@ fn member_as_function() {
 
     assert_eq!(
         "a {\n  b: e;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -261,7 +266,8 @@ fn member_as_mixin() {
 
     assert_eq!(
         "c {\n  d: e;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -285,7 +291,8 @@ fn member_as_variable_use() {
 
     assert_eq!(
         "a {\n  b: e;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -313,7 +320,8 @@ fn member_as_variable_assignment_toplevel() {
 
     assert_eq!(
         "b {\n  c: new value;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -359,7 +367,8 @@ fn use_with_multi_load_forward() {
 
     assert_eq!(
         "b {\n  c: configured;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -392,7 +401,8 @@ fn forward_member_import_precedence_nested() {
 
     assert_eq!(
         "b {\n  c: in-upstream;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -426,7 +436,8 @@ fn forward_with_through_forward_hide() {
 
     assert_eq!(
         "b {\n  c: configured;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -460,7 +471,8 @@ fn forward_with_through_forward_show() {
 
     assert_eq!(
         "b {\n  c: configured;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -497,7 +509,8 @@ fn import_forwarded_first_no_use() {
 
     assert_eq!(
         "a {\n  b: value;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 
@@ -531,7 +544,8 @@ fn forward_same_module_with_and_without_prefix() {
 
     assert_eq!(
         "c {\n  d: e;\n}\n",
-        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs)).expect(input)
+        &scss_rust::from_string(input.to_string(), &scss_rust::Options::default().fs(&fs))
+            .expect(input)
     );
 }
 

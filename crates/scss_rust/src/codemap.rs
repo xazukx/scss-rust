@@ -73,9 +73,12 @@ pub struct Span {
 
 impl Span {
     pub fn new(low: u32, high: u32) -> Span {
-        Span { low: Pos(low), high: Pos(high) }
+        Span {
+            low: Pos(low),
+            high: Pos(high),
+        }
     }
-    
+
     /// Makes a span from offsets relative to the start of this span.
     ///
     /// # Panics
@@ -132,7 +135,7 @@ impl<T> Spanned<T> {
     pub fn map_node<U, F: FnOnce(T) -> U>(self, op: F) -> Spanned<U> {
         Spanned {
             node: op(self.node),
-            span: self.span
+            span: self.span,
         }
     }
 }
@@ -180,7 +183,7 @@ impl CodeMap {
         self.files.push(file.clone());
         file
     }
-    
+
     /// Adds a file with the given name and contents, replacing any existing file with the same name.
     /// Use the returned `File` and its `.span` property to create `Spans`
     /// representing substrings of the file.
@@ -195,7 +198,7 @@ impl CodeMap {
         );
 
         self.files.retain(|f| *f.name != *name);
-        
+
         let file = Arc::new(CodeFile {
             span: Span { low, high },
             name,
@@ -495,13 +498,31 @@ impl fmt::Display for SpanLoc {
 #[test]
 fn test_codemap() {
     let mut codemap = CodeMap::new();
-    let f1 = codemap.add_file(Arc::new("test1.rs".to_string()), Arc::new("abcd\nefghij\nqwerty".to_string()));
-    let f2 = codemap.add_file(Arc::new("test2.rs".to_string()), Arc::new("foo\nbar".to_string()));
+    let f1 = codemap.add_file(
+        Arc::new("test1.rs".to_string()),
+        Arc::new("abcd\nefghij\nqwerty".to_string()),
+    );
+    let f2 = codemap.add_file(
+        Arc::new("test2.rs".to_string()),
+        Arc::new("foo\nbar".to_string()),
+    );
 
-    assert_eq!(codemap.find_file(f1.span.low()).map(|f| f.name()), Some("test1.rs"));
-    assert_eq!(codemap.find_file(f1.span.high()).map(|f| f.name()), Some("test1.rs"));
-    assert_eq!(codemap.find_file(f2.span.low()).map(|f| f.name()), Some("test2.rs"));
-    assert_eq!(codemap.find_file(f2.span.high()).map(|f| f.name()), Some("test2.rs"));
+    assert_eq!(
+        codemap.find_file(f1.span.low()).map(|f| f.name()),
+        Some("test1.rs")
+    );
+    assert_eq!(
+        codemap.find_file(f1.span.high()).map(|f| f.name()),
+        Some("test1.rs")
+    );
+    assert_eq!(
+        codemap.find_file(f2.span.low()).map(|f| f.name()),
+        Some("test2.rs")
+    );
+    assert_eq!(
+        codemap.find_file(f2.span.high()).map(|f| f.name()),
+        Some("test2.rs")
+    );
 
     let x = f1.span.subspan(5, 10);
     let f = codemap.find_file(x.low);
@@ -528,8 +549,14 @@ fn test_codemap() {
     }
 
     let x = f2.span.subspan(4, 7);
-    assert_eq!(codemap.find_file(x.low()).map(|f| f.name()), Some("test2.rs"));
-    assert_eq!(codemap.find_file(x.high()).map(|f| f.name()), Some("test2.rs"));
+    assert_eq!(
+        codemap.find_file(x.low()).map(|f| f.name()),
+        Some("test2.rs")
+    );
+    assert_eq!(
+        codemap.find_file(x.high()).map(|f| f.name()),
+        Some("test2.rs")
+    );
 }
 
 #[test]
