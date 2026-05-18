@@ -2477,9 +2477,9 @@ impl<'a> Visitor<'a> {
         let func = match self.env.get_fn(name, func_call.namespace)? {
             Some(func) => func,
             None => {
-                if let Some(f) = self.options.custom_fns.get(name.as_str()) {
+                if let Some(f) = self.options.custom_fns.get(name.canonical_str()) {
                     SassFunction::Builtin(f.clone(), name)
-                } else if let Some(f) = GLOBAL_FUNCTIONS.get(name.as_str()) {
+                } else if let Some(f) = GLOBAL_FUNCTIONS.get(name.canonical_str()) {
                     SassFunction::Builtin(f.clone(), name)
                 } else {
                     if func_call.namespace.is_some() {

@@ -255,7 +255,7 @@ pub(crate) fn get_function(mut args: ArgumentResult, visitor: &mut Visitor) -> S
         match visitor.env.get_fn(name, None)? {
             Some(f) => Some(f),
             None => GLOBAL_FUNCTIONS
-                .get(name.as_str())
+                .get(name.canonical_str())
                 .map(|f| SassFunction::Builtin(f.clone(), name)),
         }
     };
@@ -275,7 +275,7 @@ pub(crate) fn call(mut args: ArgumentResult, visitor: &mut Visitor) -> SassResul
 
             match visitor.env.get_fn(name, None)? {
                 Some(f) => f,
-                None => match GLOBAL_FUNCTIONS.get(name.as_str()) {
+                None => match GLOBAL_FUNCTIONS.get(name.canonical_str()) {
                     Some(f) => SassFunction::Builtin(f.clone(), name),
                     None => SassFunction::Plain { name },
                 },

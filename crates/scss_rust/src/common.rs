@@ -1,4 +1,6 @@
+use std::cmp::Ordering;
 use std::fmt::{self, Display, Write};
+use std::hash::{Hash, Hasher};
 
 use crate::interner::InternedString;
 
@@ -115,29 +117,67 @@ impl ListSeparator {
 
 /// In Sass, underscores and hyphens are considered equal when inside identifiers.
 ///
-/// This struct protects that invariant by normalizing all underscores into hyphens.
-#[derive(Clone, Eq, PartialEq, Hash, PartialOrd, Ord, Copy)]
-pub struct Identifier(InternedString);
+/// The first field (`original`) preserves the original spelling and is what
+/// gets displayed / resolved as `as_str`. The second field (`canonical`) is
+/// interned with underscores normalized to hyphens, and all of `PartialEq`,
+/// `Eq`, `Hash`, `PartialOrd`, and `Ord` operate on it — so two identifiers
+/// that differ only in `_` vs `-` compare and hash equal.
+#[derive(Clone, Copy)]
+pub struct Identifier {
+    original: InternedString,
+    canonical: InternedString,
+}
 
 impl fmt::Debug for Identifier {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_tuple("Identifier")
-            .field(&self.0.to_string())
+            .field(&self.original.to_string())
             .finish()
+    }
+}
+
+impl PartialEq for Identifier {
+    fn eq(&self, other: &Self) -> bool {
+        self.canonical == other.canonical
+    }
+}
+
+impl Eq for Identifier {}
+
+impl Hash for Identifier {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.canonical.hash(state);
+    }
+}
+
+impl Ord for Identifier {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.canonical.cmp(&other.canonical)
+    }
+}
+
+impl PartialOrd for Identifier {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 
 impl Identifier {
     fn from_str(s: &str) -> Self {
-        if s.contains('_') {
-            Identifier(InternedString::get_or_intern(s.replace('_', "-")))
+        let original = InternedString::get_or_intern(s);
+        let canonical = if s.contains('_') {
+            InternedString::get_or_intern(s.replace('_', "-"))
         } else {
-            Identifier(InternedString::get_or_intern(s))
-        }
+            original
+        };
+        Identifier { original, canonical }
     }
 
     pub fn is_public(&self) -> bool {
-        !self.as_str().starts_with('-')
+        // Identifiers that start with `_` or `-` are considered private in
+        // Sass; check the canonical form (which normalizes `_` to `-`) so
+        // both prefixes are caught uniformly.
+        !self.canonical_str().starts_with('-')
     }
 }
 
@@ -161,17 +201,24 @@ impl From<&str> for Identifier {
 
 impl Display for Identifier {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "{}", self.original)
     }
 }
 
 impl Identifier {
     pub fn as_str(&self) -> &str {
-        self.0.resolve_ref()
+        self.original.resolve_ref()
+    }
+
+    /// Returns the canonical form of this identifier (underscores normalized
+    /// to hyphens). Use this for keying into maps that store identifiers in
+    /// their hyphenated form (e.g. `GLOBAL_FUNCTIONS`).
+    pub fn canonical_str(&self) -> &str {
+        self.canonical.resolve_ref()
     }
 }
 
-/// Returns `name` without a vendor prefix.
+/// Returns `name` without a vendor prefix (-moz-, -webkit-, etc).
 ///
 /// If `name` has no vendor prefix, it's returned as-is.
 pub(crate) fn unvendor(name: &str) -> &str {

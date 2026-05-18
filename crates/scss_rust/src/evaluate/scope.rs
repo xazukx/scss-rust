@@ -244,6 +244,6 @@ impl Scopes {
             }
         }
 
-        GLOBAL_FUNCTIONS.contains_key(name.as_str())
+        GLOBAL_FUNCTIONS.contains_key(name.canonical_str())
     }
 }
