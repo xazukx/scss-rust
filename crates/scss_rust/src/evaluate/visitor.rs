@@ -3065,7 +3065,6 @@ impl<'a> Visitor<'a> {
             // If the value is an empty list, preserve it, because converting it to CSS
             // will throw an error that we want the user to see.
             if !value.is_blank() || value.is_empty_list() {
-                // todo: superfluous clones?
                 self.css_tree.add_stmt(
                     CssStmt::Style(Style {
                         property: InternedString::get_or_intern(&name),

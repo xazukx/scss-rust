@@ -10,7 +10,7 @@ use std::{
 use crate::selector::{Selector, SelectorList};
 
 #[derive(Debug, Clone)]
-pub struct ExtendedSelector(Rc<RefCell<SelectorList>>);
+pub struct ExtendedSelector(pub Rc<RefCell<SelectorList>>);
 
 impl PartialEq for ExtendedSelector {
     fn eq(&self, other: &Self) -> bool {

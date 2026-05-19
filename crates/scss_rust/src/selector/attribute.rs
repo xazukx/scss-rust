@@ -13,11 +13,11 @@ use super::{Namespace, QualifiedName, SelectorParser};
 
 #[derive(Clone, Debug)]
 pub struct Attribute {
-    attr: QualifiedName,
-    value: String,
-    modifier: Option<char>,
-    op: AttributeOp,
-    span: Span,
+    pub attr: QualifiedName,
+    pub value: String,
+    pub modifier: Option<char>,
+    pub op: AttributeOp,
+    pub span: Span,
 }
 
 impl PartialEq for Attribute {
@@ -207,7 +207,7 @@ impl Display for Attribute {
 }
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-enum AttributeOp {
+pub enum AttributeOp {
     /// \[attr\]
     ///
     /// Represents elements with an attribute name of `attr`
