@@ -1517,7 +1517,9 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
     fn use_namespace(
         &mut self,
         url: &Path,
-        _start: usize,
+        // Cursor at the start of the `@use` rule (the `@`). Used to anchor error
+        // spans to the whole rule, matching dart-sass.
+        rule_start: usize,
         url_span: Span,
     ) -> SassResult<Option<String>> {
         if self.scan_identifier("as", false)? {
@@ -1535,12 +1537,16 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
         let base_name = base_name.to_string_lossy();
         let dot = base_name.find('.');
 
-        let start = if base_name.starts_with('_') { 1 } else { 0 };
-        let end = dot.unwrap_or(base_name.len());
+        // Byte offsets *within `base_name`* used to slice out the namespace. These
+        // are intentionally distinct from `rule_start`, which is a token cursor into
+        // the source. Conflating the two previously caused the error span below to be
+        // anchored to byte 0 of the file rather than to the `@use` rule.
+        let name_start = if base_name.starts_with('_') { 1 } else { 0 };
+        let name_end = dot.unwrap_or(base_name.len());
         let namespace = if url.to_string_lossy().starts_with("sass:") {
             return Ok(Some(url.to_string_lossy().into_owned()));
         } else {
-            &base_name[start..end]
+            &base_name[name_start..name_end]
         };
 
         let mut toks = Lexer::new_from_string(namespace, url_span);
@@ -1561,10 +1567,10 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
             _ => {
                 Err((
                     format!(
-                        "The default namespace \"{namespace}\" is not a valid Sass identifier.\n\nRecommendation: add an \"as\" clause to define an explicit namespace.", 
+                        "The default namespace \"{namespace}\" is not a valid Sass identifier.\n\nRecommendation: add an \"as\" clause to define an explicit namespace.",
                         namespace = namespace
                     ),
-                    self.toks_mut().span_from(start)
+                    self.toks_mut().span_from(rule_start)
                 ).into())
             }
         }

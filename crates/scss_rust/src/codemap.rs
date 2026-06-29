@@ -281,11 +281,23 @@ impl CodeMap {
     }
 
     /// Gets the file and its line and column ranges represented by a `Span`.
+    ///
+    /// A `Span` is identified with a single file by its low position. Its high
+    /// position is expected to lie within that same file, but because the
+    /// `CodeMap` lays files out as if they were concatenated into one contiguous
+    /// buffer, a malformed span (one built relative to the wrong base offset, or
+    /// one that straddles a file boundary) could otherwise resolve its end into a
+    /// *different* file — or panic inside [`CodeFile::find_line_col`]. To keep
+    /// error reporting robust, both ends are clamped into the file that contains
+    /// the span's start, guaranteeing the reported location is always aligned to
+    /// the correct file's line and column numbering.
     pub fn look_up_span(&self, span: Span) -> SpanLoc {
         match self.find_file(span.low) {
             Some(file) => {
-                let begin = file.find_line_col(span.low);
-                let end = file.find_line_col(span.high);
+                let low = cmp::max(span.low(), file.span.low());
+                let high = cmp::min(cmp::max(span.high(), low), file.span.high());
+                let begin = file.find_line_col(low);
+                let end = file.find_line_col(high);
                 SpanLoc {
                     file: file.clone(),
                     begin,
@@ -613,4 +625,27 @@ fn test_multibyte() {
             position: LineCol { line: 1, column: 1 }
         }
     );
+}
+
+#[test]
+fn test_span_clamped_to_starting_file() {
+    let mut codemap = CodeMap::new();
+    let f1 = codemap.add_file(
+        Arc::new("a.scss".to_owned()),
+        Arc::new("abc\ndef".to_owned()),
+    );
+    let f2 = codemap.add_file(Arc::new("b.scss".to_owned()), Arc::new("xyz".to_owned()));
+
+    // A malformed span that begins in `f1` but runs past its end and into `f2`.
+    // Because the CodeMap stores files in one contiguous coordinate space, a naive
+    // lookup would either resolve the end into `b.scss` or panic in `find_line_col`.
+    let bad_span = Span::new(*f1.span.low(), *f2.span.high());
+
+    let loc = codemap.look_up_span(bad_span);
+
+    // The file is determined by the span's start, and the end is clamped into it,
+    // so the location stays entirely within `a.scss`.
+    assert_eq!(loc.file.name(), "a.scss");
+    assert_eq!(loc.begin, LineCol { line: 0, column: 0 });
+    assert_eq!(loc.end, LineCol { line: 1, column: 3 });
 }

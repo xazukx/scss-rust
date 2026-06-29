@@ -56,6 +56,7 @@ error!(
     configure_builtin_module,
     r#"@use "sass:math" with ($e: 5);"#, r#"Error: Built-in modules can't be configured."#
 );
+
 test!(
     use_as,
     "@use \"sass:math\" as foo;
@@ -88,6 +89,52 @@ test!(
     }",
     "a {\n  color: -0.4161468365;\n}\n"
 );
+
+// The default-namespace error must be anchored to the `@use` rule itself, not to
+// byte 0 of the file. Here the rule is on line 1, so the highlighted span is the
+// whole `@use "a b"` (10 columns wide).
+#[test]
+fn use_invalid_namespace_error_location() {
+    let err = scss_rust::from_string("@use \"a b\";".to_string(), &scss_rust::Options::default())
+        .expect_err("expected an invalid-namespace error");
+
+    match err.kind() {
+        scss_rust::ErrorKind::ParseError { loc, .. } => {
+            assert_eq!(loc.file.name(), "stdin");
+            // `LineCol` is 0-indexed, so line 0 / column 0 is 1:1.
+            assert_eq!(loc.begin.line, 0);
+            assert_eq!(loc.begin.column, 0);
+            assert_eq!(loc.end.line, 0);
+            assert_eq!(loc.end.column, 10); // covers `@use "a b"`
+        }
+        other => panic!("expected a ParseError, got {:?}", other),
+    }
+}
+
+// Regression test for multi-file CodeMaps: when the failing `@use` lives in a file
+// pulled in by another `@use`, the error must resolve to that *used* file's own line
+// numbering, not to an offset interpreted against the entry stylesheet.
+#[test]
+fn use_invalid_namespace_error_location_in_used_file() {
+    let mut fs = TestFs::new();
+    fs.add_file("child.scss", "// child\n@use \"Bad Name\";\n");
+
+    let options = scss_rust::Options::default().fs(&fs);
+    let err = scss_rust::from_string("@use \"child\";".to_string(), &options)
+        .expect_err("expected an invalid-namespace error");
+
+    match err.kind() {
+        scss_rust::ErrorKind::ParseError { loc, .. } => {
+            // The mistake is in child.scss on its own line 2, not in the entry file.
+            assert_eq!(loc.file.name(), "child.scss");
+            assert_eq!(loc.begin.line, 1); // 0-indexed line 1 == line 2
+            assert_eq!(loc.begin.column, 0);
+            assert_eq!(loc.end.line, 1);
+            assert_eq!(loc.end.column, 15); // covers `@use "Bad Name"`
+        }
+        other => panic!("expected a ParseError, got {:?}", other),
+    }
+}
 
 #[test]
 fn use_user_defined_same_directory() {
