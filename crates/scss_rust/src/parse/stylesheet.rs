@@ -1567,7 +1567,7 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
             _ => {
                 Err((
                     format!(
-                        "The default namespace \"{namespace}\" is not a valid Sass identifier.\n\nRecommendation: add an \"as\" clause to define an explicit namespace.",
+                        "The namespace \"{namespace}\" is not a valid identifier.\n\nAdd an \"as\" clause to define an explicit namespace.",
                         namespace = namespace
                     ),
                     self.toks_mut().span_from(rule_start)
