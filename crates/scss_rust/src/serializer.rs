@@ -1001,7 +1001,7 @@ impl<'a> StyleSerializer<'a> {
         }
 
         self.write_indentation();
-        let col = self.map.look_up_pos(span.low()).position.column;
+        let col = self.map.look_up_pos(span).position.column;
         let mut lines = comment.lines();
 
         if let Some(line) = lines.next() {

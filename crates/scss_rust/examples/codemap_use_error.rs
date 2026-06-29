@@ -1,4 +1,4 @@
-//! Multi-file `CodeMap` + `@use` error alignment.
+//! Multi-file `CodeMap` + `@use`, with file-local error spans.
 //!
 //! This example builds a [`CodeMap`] that ends up holding *several* SCSS files and
 //! drives a compilation where one file pulls in another with an `@use` rule. The
@@ -6,31 +6,24 @@
 //! is not a valid Sass identifier — so a parse error is raised while that second
 //! file is being read.
 //!
-//! ## The subtle problem this demonstrates
+//! ## Why error spans are now file-local
 //!
-//! A `CodeMap` stores every file in a single, shared coordinate space, *as if all
-//! of the sources had been concatenated into one giant buffer*. The first file
-//! occupies bytes `[1, N]`, the next `[N + 1, M]`, and so on. A [`Span`] is just a
-//! pair of offsets into that global space — it carries no explicit file identity.
+//! Earlier, a `CodeMap` stored every file in a single, shared coordinate space, as
+//! if all the sources had been concatenated into one giant buffer: the first file
+//! occupied bytes `[1, N]`, the next `[N + 1, M]`, and so on. A `Span` was just a
+//! pair of offsets into that global buffer with no file identity, so turning one
+//! back into a `file:line:column` meant binary-searching the map and subtracting
+//! the file's base offset. That coupling was fragile — a span built against the
+//! wrong base silently resolved to the wrong line, and an over-long span could
+//! bleed past the end of its file into the next one.
 //!
-//! That design is compact and fast, but it is easy to construct a span relative to
-//! the *wrong* base offset. If an error span is accidentally anchored to byte `0`
-//! of a file (or to the start of the whole map) instead of to the construct that
-//! actually failed, the reported line/column silently drifts: the map happily
-//! resolves the bogus offset to *some* real location, just not the right one. When
-//! several files are concatenated, an over-long span can even bleed past the end of
-//! its own file into the next one.
-//!
-//! That is exactly the bug this example used to expose: the `@use` namespace error
-//! was anchored to offset `0` of the file rather than to the `@use` rule, so it
-//! pointed at line 1 (`/* File 2 */`) instead of line 2 (the actual `@use`).
-//!
-//! Two changes keep error locations honest:
-//!   1. The parser now anchors the namespace error to the `@use` rule's own start
-//!      cursor, so the highlighted span is the whole `@use "..."` statement.
-//!   2. [`CodeMap::look_up_span`] clamps a span into the single file that contains
-//!      its start, so a malformed span can never resolve into a neighbouring file
-//!      or panic — errors are always aligned to the correct file's line numbering.
+//! Now each file owns its **own** 0-based coordinate space, and every [`Span`]
+//! carries the [`FileId`](scss_rust::codemap) of the file it points into. A span's
+//! `low`/`high` are therefore the byte offsets a user would count in that one file
+//! — no subtraction, no global layout to reason about. The `CodeMap` is reduced to
+//! a registry that maps a file id back to its source for rendering; it never does
+//! cross-file offset arithmetic, so a location can't drift between files no matter
+//! what order files were added.
 //!
 //! Run with:
 //! ```bash
@@ -42,7 +35,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use scss_rust::{
-    codemap::{CodeMap, SpanLoc},
+    codemap::{CodeMap, LineCol, SpanLoc},
     Fs, Lexer, Options, ScssParser, StylesheetParser, Visitor,
 };
 
@@ -115,14 +108,16 @@ fn main() {
     // is never even reached. It lives in the FS to make the scenario realistic.
     let new_style_comp = "/* New Style Comp */\n.button { color: hotpink; }\n";
 
+    // Register every file with the in-memory FS, File 1 first.
     let mut fs = MemoryFs::new();
+    fs.add("file1.scss", FILE_1);
     fs.add("file2.scss", FILE_2);
     fs.add("New Style Comp.scss", new_style_comp);
 
     let options = Options::default().fs(&fs);
 
     // Build a CodeMap and seed it with File 1 (the entry point). Loading File 2 via
-    // `@use` will append it to this same map, giving us a multi-file CodeMap.
+    // `@use` will register it in this same map, giving us a multi-file CodeMap.
     let mut map = CodeMap::new();
     let entry_path = PathBuf::from("file1.scss");
     let entry_file = map.add_file(
@@ -132,8 +127,8 @@ fn main() {
     let empty_span = entry_file.span.subspan(0, 0);
 
     // Parse and then visit File 1. Visiting evaluates the `@use "file2"` rule,
-    // which reads File 2 from the FS, adds it to the CodeMap, and parses it — and
-    // it is *that* parse that fails on the invalid namespace.
+    // which reads File 2 from the FS, registers it in the CodeMap, and parses it —
+    // and it is *that* parse that fails on the invalid namespace.
     let lexer = Lexer::new_from_file(&entry_file);
     let stylesheet = match ScssParser::new(lexer, &options, empty_span, &entry_path).parse() {
         Ok(s) => s,
@@ -155,25 +150,24 @@ fn main() {
         Err(e) => e,
     };
 
-    // Show how the CodeMap laid the files out: a single, contiguous global
-    // coordinate space. File 2 does *not* start at offset 0 — that is the whole
-    // reason the start/end of an error span has to be computed carefully.
-    println!("CodeMap layout ({} files):", map.files.len());
+    // Show the CodeMap's contents. Each file is its *own* 0-based coordinate space —
+    // there is no global layout, so a file's id (its registry index) says nothing
+    // about its byte offsets.
+    println!("CodeMap registry ({} files):", map.files.len());
     for file in &map.files {
         println!(
-            "  {:<22} global bytes [{:>4}, {:>4}]  ({} lines)",
+            "  [id {}] {:<22} bytes 0..{}  ({} lines)",
+            file.span.file().index(),
             file.name(),
-            *file.span.low(),
             *file.span.high(),
             file.num_lines(),
         );
     }
     println!();
 
-    // The error raised during visiting is a *raw* error: a message plus a span in
-    // the CodeMap's global coordinate space. A raw error has no location attached
-    // yet, so we resolve its span against the map to get a file-relative line and
-    // column. This resolution step is where alignment matters.
+    // The error raised during visiting is a *raw* error: a message plus a span.
+    // The span already names its file (via its FileId) and its offsets are
+    // file-relative, so resolving it is a direct registry lookup — no subtraction.
     if !error.is_raw() {
         // Any non-raw error (e.g. I/O) just prints its message directly.
         print!("{}", error);
@@ -184,20 +178,29 @@ fn main() {
     let loc: SpanLoc = map.look_up_span(span);
 
     println!("Resolved error location:");
-    println!("  message : {}", message.lines().next().unwrap_or(&message));
-    println!("  file    : {}", loc.file.name());
+    println!(
+        "  message    : {}",
+        message.lines().next().unwrap_or(&message)
+    );
+    println!(
+        "  file        : {} (id {})",
+        loc.file.name(),
+        span.file().index()
+    );
+    // `span.low()/high()` ARE the file-relative byte offsets — nothing is subtracted.
+    println!("  byte range  : {}..{}", *span.low(), *span.high());
     // `LineCol` is 0-indexed internally; +1 to match editor/dart-sass numbers.
     println!(
-        "  start   : line {}, column {}",
+        "  start       : line {}, column {}",
         loc.begin.line + 1,
         loc.begin.column + 1
     );
     println!(
-        "  end     : line {}, column {}",
+        "  end         : line {}, column {}",
         loc.end.line + 1,
         loc.end.column + 1
     );
-    println!("  snippet : {:?}", loc.file.source_line(loc.begin.line));
+    println!("  snippet     : {:?}", loc.file.source_line(loc.begin.line));
     println!();
 
     // Sanity-check the alignment: the offending `@use` sits on line 2 of File 2.
@@ -218,4 +221,75 @@ fn main() {
     let rendered = scss_rust::Error::from_loc(message, loc, unicode);
     println!("Rendered diagnostic:\n");
     print!("{}", rendered);
+    println!();
+
+    // ---- The error's span needs no knowledge of the CodeMap -------------------
+    //
+    // The rendered value is a `ParseError` carrying a resolved `loc`. Because the
+    // span's offsets are already file-relative, "is this position inside the file?"
+    // is just `0 <= low <= high <= len` — no rebasing against any global layout.
+    match rendered.kind() {
+        scss_rust::ErrorKind::ParseError { loc, .. } => {
+            let source_len = loc.file.source().len();
+            let start_pos = *span.low() as usize;
+            let end_pos = *span.high() as usize;
+
+            assert!(
+                start_pos <= end_pos && end_pos <= source_len,
+                "error span {}..{} escapes {} (len {})",
+                start_pos,
+                end_pos,
+                loc.file.name(),
+                source_len
+            );
+            assert!(
+                loc.begin.line < loc.file.num_lines(),
+                "begin line out of range"
+            );
+            assert!(loc.end.line < loc.file.num_lines(), "end line out of range");
+
+            println!(
+                "Bounds verified: {} is {} bytes; error span occupies file-relative bytes {}..{}.",
+                loc.file.name(),
+                source_len,
+                start_pos,
+                end_pos
+            );
+        }
+        other => panic!("expected a ParseError, got {:?}", other),
+    }
+
+    // ---- Order independence is structural, not coincidental --------------------
+    //
+    // Build a fresh CodeMap that registers File 2 *before* File 1. File 2 now has a
+    // different id, but its coordinate space is unchanged (still 0-based), so the
+    // exact same file-relative span — the `@use` rule at bytes 13..34 — resolves to
+    // the identical line and column.
+    let mut reversed = CodeMap::new();
+    let file2_first = reversed.add_file(
+        Arc::new("file2.scss".to_owned()),
+        Arc::new(FILE_2.to_owned()),
+    );
+    reversed.add_file(
+        Arc::new("file1.scss".to_owned()),
+        Arc::new(FILE_1.to_owned()),
+    );
+
+    let reordered_loc = reversed.look_up_span(file2_first.span.subspan(13, 34));
+    assert_eq!(reordered_loc.file.name(), "file2.scss");
+    assert_eq!(reordered_loc.begin, LineCol { line: 1, column: 0 });
+    assert_eq!(
+        reordered_loc.end,
+        LineCol {
+            line: 1,
+            column: 21
+        }
+    );
+    println!(
+        "Reversed-order map: file2.scss @ bytes 13..34 still resolves to {}:{}–{}:{}.",
+        reordered_loc.begin.line + 1,
+        reordered_loc.begin.column + 1,
+        reordered_loc.end.line + 1,
+        reordered_loc.end.column + 1,
+    );
 }
