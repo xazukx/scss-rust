@@ -183,6 +183,33 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
     }
 
     fn parse(&mut self) -> SassResult<StyleSheet> {
+        self.parse_stylesheet(false)
+    }
+
+    /// Parse a stylesheet *fragment* in which property declarations (e.g.
+    /// `border: 1px solid black;`) are permitted at the top level, alongside the
+    /// usual style rules and variable declarations.
+    ///
+    /// This is the same as [`parse`](Self::parse) except that the document is
+    /// treated as the body of an (implicit) style rule, so an enclosing selector
+    /// block is no longer required. Every span/line/column is preserved exactly
+    /// as it would be for the equivalent content nested inside a selector, so the
+    /// following two inputs yield declarations with identical positions:
+    ///
+    /// ```scss
+    /// div {
+    ///     border: 1px solid black;
+    /// }
+    /// ```
+    ///
+    /// ```scss
+    /// border: 1px solid black;
+    /// ```
+    fn parse_allowing_declarations(&mut self) -> SassResult<StyleSheet> {
+        self.parse_stylesheet(true)
+    }
+
+    fn parse_stylesheet(&mut self, allow_declarations: bool) -> SassResult<StyleSheet> {
         let mut style_sheet = StyleSheet::new(
             self.is_plain_css(),
             self.options()
@@ -193,6 +220,17 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
 
         // Allow a byte-order mark at the beginning of the document.
         self.scan_char('\u{feff}');
+
+        // Treat the whole document as the body of a style rule. This flips the
+        // per-statement dispatch (see `parse_statement`) from
+        // `parse_variable_declaration_or_style_rule` to
+        // `parse_declaration_or_style_rule`, the superset that additionally
+        // accepts bare property declarations — without disturbing the default
+        // (`parse`) behaviour or any nested parsing, which saves and restores
+        // this flag around each real style rule.
+        if allow_declarations {
+            *self.flags_mut() |= ContextFlags::IN_STYLE_RULE;
+        }
 
         style_sheet.body = self.parse_statements(|parser| {
             if parser.next_matches("@charset") {

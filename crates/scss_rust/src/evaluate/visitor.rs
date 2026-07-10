@@ -132,6 +132,12 @@ pub struct Visitor<'a> {
     /// has been seen in the past. In the majority of cases, files are imported
     /// at most once.
     files_seen: BTreeSet<PathBuf>,
+    /// When set, property declarations are permitted outside of any style rule
+    /// (i.e. at the top level of a stylesheet fragment) instead of raising
+    /// "Declarations may only be used within style rules.". Such declarations
+    /// are emitted directly at the root of the output. Opt in via
+    /// [`visit_stylesheet_allowing_declarations`](Self::visit_stylesheet_allowing_declarations).
+    allow_bare_declarations: bool,
 }
 
 impl<'a> Visitor<'a> {
@@ -170,7 +176,37 @@ impl<'a> Visitor<'a> {
             map,
             import_cache: BTreeMap::new(),
             files_seen: BTreeSet::new(),
+            allow_bare_declarations: false,
         }
+    }
+
+    /// Visit a stylesheet, permitting property declarations at the top level
+    /// (i.e. outside of any style rule), the way
+    /// [`StylesheetParser::parse_allowing_declarations`](crate::StylesheetParser::parse_allowing_declarations)
+    /// permits them at parse time.
+    ///
+    /// A fragment such as
+    ///
+    /// ```scss
+    /// border: 1px solid black;
+    /// color: red;
+    /// ```
+    ///
+    /// is compiled with the declarations emitted directly at the root of the
+    /// output, rather than raising "Declarations may only be used within style
+    /// rules.". Style rules, variable declarations, `@include`, etc. continue to
+    /// behave exactly as in [`visit_stylesheet`](Self::visit_stylesheet). The
+    /// relaxation applies for the duration of this call, including to any files
+    /// pulled in via `@use`/`@import`/`@forward`.
+    pub fn visit_stylesheet_allowing_declarations(
+        &mut self,
+        style_sheet: StyleSheet,
+    ) -> SassResult<StyleSheet> {
+        let old = self.allow_bare_declarations;
+        self.allow_bare_declarations = true;
+        let result = self.visit_stylesheet(style_sheet);
+        self.allow_bare_declarations = old;
+        result
     }
 
     pub fn visit_stylesheet(&mut self, mut style_sheet: StyleSheet) -> SassResult<StyleSheet> {
@@ -3036,6 +3072,7 @@ impl<'a> Visitor<'a> {
         if !self.style_rule_exists()
             && !self.flags.in_unknown_at_rule()
             && !self.flags.in_keyframes()
+            && !self.allow_bare_declarations
         {
             return Err((
                 "Declarations may only be used within style rules.",
