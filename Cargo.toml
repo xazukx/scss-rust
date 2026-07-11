@@ -1,7 +1,6 @@
 [workspace]
 members = [
     "crates/scss_rust",
-    "crates/include_sass",
     "crates/lib",
 ]
 resolver = "2"
@@ -19,4 +18,3 @@ lto = true
 codegen-units = 1
 panic = 'abort'
 strip = true
-

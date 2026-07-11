@@ -39,16 +39,6 @@ All known missing features and bugs are tracked in [#19](https://github.com/conn
 
 (enabled by default): enable the builtin functions [`random([$limit])`](https://sass-lang.com/documentation/modules/math/#random) and [`unique-id()`](https://sass-lang.com/documentation/modules/string/#unique-id)
 
-### macro
-
-(disabled by default): enable the macro `scss_rust::include!` for compiling Sass to
-CSS at compile time
-
-### nightly
-
-(disabled by default): currently only used by `scss_rust::include!` to enable 
-[proc_macro::tracked_path](https://github.com/rust-lang/rust/issues/99515)
-
 ## Testing
 
 As much as possible this library attempts to follow the same [philosophy for testing as

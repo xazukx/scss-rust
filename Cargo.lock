@@ -229,15 +229,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 
 [[package]]
-name = "include_sass"
-version = "0.13.4"
-dependencies = [
- "quote",
- "scss_rust",
- "syn",
-]
-
-[[package]]
 name = "indexmap"
 version = "2.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -418,7 +409,6 @@ version = "0.13.4"
 dependencies = [
  "clap",
  "getrandom 0.2.17",
- "include_sass",
  "paste",
  "scss_rust",
  "tempfile",

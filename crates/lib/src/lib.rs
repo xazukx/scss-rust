@@ -68,37 +68,3 @@ pub use scss_rust::{
     from_path, from_string, fs, Error, ErrorKind, Fs, InputSyntax, Logger, NullFs, NullLogger,
     Options, OutputStyle, Result, StdFs, StdLogger,
 };
-
-/// Include CSS in your binary at compile time from a Sass source file
-///
-/// `static CSS: &str = scss_rust::include!("../static/_index.scss");`
-///
-/// This requires the `"macro"` feature, which is not enabled by default.
-///
-/// By default `grass` will track files using [`include_str!`]. This allows incremental
-/// compilation to be updated when any Sass files are modified.
-///
-/// If compiling with a nightly version of rust, `grass` can make use of
-/// [proc_macro::tracked_path](https://github.com/rust-lang/rust/issues/99515)
-/// in order to force incremental recompilation, which is more robust and potentially
-/// faster. This is enabled by the `"nightly"` feature.
-///
-/// ###### Limitations
-///
-/// Compilation options are not configurable with this macro. The default values
-/// for all options are used, except for output style, which is compressed.
-#[macro_export]
-#[cfg(any(feature = "macro", doc))]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "macro")))]
-macro_rules! include {
-    ($path:literal) => {
-        $crate::__internal::include_sass::include_sass!($path);
-    };
-}
-
-#[doc(hidden)]
-#[cfg(feature = "macro")]
-pub mod __internal {
-    #[doc(hidden)]
-    pub use include_sass;
-}
