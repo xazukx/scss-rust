@@ -273,3 +273,85 @@ fn default_visit_rejects_bare_declaration() {
         err
     );
 }
+
+// ---------------------------------------------------------------------------
+// A top-level parent selector (`&`) resolves to the implicit `:scope` root
+// ---------------------------------------------------------------------------
+
+#[test]
+fn top_level_parent_selector_resolves_to_scope() {
+    let css = compile_fragment(
+        "border: 1px solid black;\ncolor: blue;\nmargin: 4px;\n\n& .yolo {\n  color: red !important;\n}\n",
+    );
+    // Bare declarations stay at the root; the `&` becomes `:scope`.
+    assert!(css.contains("border: 1px solid black;"), "css: {css:?}");
+    assert!(
+        css.contains(":scope .yolo {\n  color: red !important;\n}"),
+        "css: {css:?}"
+    );
+}
+
+#[test]
+fn bare_parent_selector_becomes_scope() {
+    assert_eq!(
+        compile_fragment("& {\n  color: red;\n}\n"),
+        ":scope {\n  color: red;\n}\n"
+    );
+}
+
+#[test]
+fn compound_parent_selector_becomes_scope() {
+    // `&.active` -> `:scope.active`, `&:hover` -> `:scope:hover`.
+    assert_eq!(
+        compile_fragment("&.active {\n  color: red;\n}\n"),
+        ":scope.active {\n  color: red;\n}\n"
+    );
+    assert_eq!(
+        compile_fragment("&:hover {\n  color: red;\n}\n"),
+        ":scope:hover {\n  color: red;\n}\n"
+    );
+}
+
+#[test]
+fn non_parent_top_level_selector_is_untouched() {
+    // A top-level selector without `&` must NOT gain an implicit `:scope`.
+    let css = compile_fragment(".foo {\n  color: red;\n}\n");
+    assert_eq!(css, ".foo {\n  color: red;\n}\n");
+    assert!(!css.contains(":scope"), "css: {css:?}");
+}
+
+#[test]
+fn nested_parent_resolves_against_enclosing_rule() {
+    // The outer `&` becomes `:scope`; the inner `&` resolves against the
+    // *real* enclosing selector (`:scope .yolo`), not against `:scope` again.
+    let css = compile_fragment("& .yolo {\n  color: red;\n  & span { color: blue; }\n}\n");
+    assert!(css.contains(":scope .yolo {"), "css: {css:?}");
+    assert!(css.contains(":scope .yolo span {"), "css: {css:?}");
+}
+
+#[test]
+fn default_visit_still_rejects_top_level_parent_selector() {
+    // Outside fragment mode, a top-level `&` is still an error.
+    let options = Options::default();
+    let mut map = CodeMap::new();
+    let path = PathBuf::from("frag.scss");
+    let src = "& .yolo {\n  color: red;\n}\n";
+    let file = map.add_file(
+        Arc::new(path.to_string_lossy().into_owned()),
+        Arc::new(src.to_owned()),
+    );
+    let empty_span = file.span.subspan(0, 0);
+    let lexer = Lexer::new_from_file(&file);
+    let sheet = ScssParser::new(lexer, &options, empty_span, &path)
+        .parse_allowing_declarations()
+        .unwrap();
+
+    let mut visitor = Visitor::new(&path, &options, &mut map, empty_span);
+    let err = visitor.visit_stylesheet(sheet).unwrap_err();
+    assert!(
+        format!("{:?}", err)
+            .contains("Top-level selectors may not contain the parent selector"),
+        "unexpected error: {:?}",
+        err
+    );
+}

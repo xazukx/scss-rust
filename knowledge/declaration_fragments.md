@@ -96,6 +96,12 @@ step 1 and walk `sheet.body`; each `AstStmt::Style { span, .. }` resolves via
   evaluate at the root.
 - **Mixed content is fine.** Bare declarations may sit next to normal style
   rules; each is emitted in source order.
+- **Top-level `&` resolves to `:scope`.** Because a fragment has no real
+  enclosing rule, an explicit parent selector at the top level refers to the
+  implicit `:scope` root: `& .yolo` → `:scope .yolo`, `&:hover` → `:scope:hover`.
+  A top-level selector *without* `&` is left untouched (`.foo` stays `.foo`).
+  Nested `&` still resolves against its real enclosing selector. Outside
+  fragment mode a top-level `&` remains an error.
 - **Imports.** The visitor relaxation lasts for the whole call, including files
   pulled in via `@use`/`@import`/`@forward`.
 - **Compressed mode** keeps a trailing `;` (e.g. `border:1px solid #000;`) — the

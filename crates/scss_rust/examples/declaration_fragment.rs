@@ -57,6 +57,16 @@ a {
 }
 ";
 
+/// A fragment whose top-level rule uses the parent selector `&`. Because there
+/// is no real enclosing rule, `&` refers to the implicit `:scope` root.
+const SCOPE_FRAGMENT: &str = "\
+color: blue;
+
+& .yolo {
+\tcolor: red !important;
+}
+";
+
 /// Register `src` in a fresh `CodeMap` and parse it, allowing top-level
 /// declarations. Returns the sheet plus the map its spans resolve against.
 fn parse_fragment(src: &str, path: &Path) -> (StyleSheet, CodeMap) {
@@ -195,4 +205,11 @@ fn main() {
     println!("--- input ---\n{RICH_FRAGMENT}");
     let css = compile_fragment(RICH_FRAGMENT, &path);
     println!("--- output ---\n{css}");
+
+    // ---- 4. A top-level `&` resolves to the implicit `:scope` root --------
+    println!("\n=== compiled fragment with a top-level `&` ===");
+    println!("--- input ---\n{SCOPE_FRAGMENT}");
+    let scoped = compile_fragment(SCOPE_FRAGMENT, &path);
+    println!("--- output ---\n{scoped}");
+    assert!(scoped.contains(":scope .yolo"));
 }

@@ -2996,13 +2996,32 @@ impl<'a> Visitor<'a> {
             ruleset.selector_span,
         )?;
 
-        parsed_selector = parsed_selector.resolve_parent_selectors(
-            self.style_rule_ignoring_at_root
-                .as_ref()
-                // todo: this clone should be superfluous(?)
-                .map(|x| x.as_selector_list().clone()),
-            !self.flags.at_root_excluding_style_rule(),
-        )?;
+        let explicit_parent = self
+            .style_rule_ignoring_at_root
+            .as_ref()
+            // todo: this clone should be superfluous(?)
+            .map(|x| x.as_selector_list().clone());
+
+        let (parent, implicit_parent) = match explicit_parent {
+            Some(parent) => (Some(parent), !self.flags.at_root_excluding_style_rule()),
+            // In a fragment (declarations allowed at the top level) there is no
+            // real enclosing style rule, so a top-level `&` refers to the
+            // implicit `:scope` root. We pass `implicit_parent = false` so that
+            // selectors *without* a `&` are left untouched — a bare `.foo` stays
+            // `.foo` rather than becoming `:scope .foo`.
+            None if self.allow_bare_declarations => {
+                let scope = self.parse_selector_from_string(
+                    ":scope",
+                    false,
+                    false,
+                    ruleset.selector_span,
+                )?;
+                (Some(scope), false)
+            }
+            None => (None, !self.flags.at_root_excluding_style_rule()),
+        };
+
+        parsed_selector = parsed_selector.resolve_parent_selectors(parent, implicit_parent)?;
 
         // todo: _mediaQueries
         let selector = self
