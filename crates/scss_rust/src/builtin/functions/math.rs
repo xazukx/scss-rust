@@ -91,9 +91,9 @@ pub(crate) fn random(mut args: ArgumentResult, visitor: &mut Visitor) -> SassRes
     let limit = args.default_arg(0, "limit", Value::Null);
 
     if matches!(limit, Value::Null) {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         return Ok(Value::Dimension(SassNumber::new_unitless(
-            rng.gen_range(0.0..1.0),
+            rng.random_range(0.0..1.0),
         )));
     }
 
@@ -113,9 +113,9 @@ pub(crate) fn random(mut args: ArgumentResult, visitor: &mut Visitor) -> SassRes
             .into());
     }
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     Ok(Value::Dimension(SassNumber::new_unitless(
-        rng.gen_range(0..limit_int) + 1,
+        rng.random_range(0..limit_int) + 1,
     )))
 }
 

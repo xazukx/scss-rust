@@ -168,7 +168,7 @@ pub(crate) static NAMED_COLORS: NamedColorMap = NamedColorMap {
         "transparent" => [0x00, 0x00, 0x00, 0x00],
     },
     rgba_to_name: phf::phf_map! {
-        [0xF0, 0xF8, 0xFF] => "aliceblue",
+        [0xF0u8, 0xF8u8, 0xFFu8] => "aliceblue",
         [0xFA, 0xEB, 0xD7] => "antiquewhite",
         [0x00, 0xFF, 0xFF] => "aqua",
         [0x7F, 0xFF, 0xD4] => "aquamarine",

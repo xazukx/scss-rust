@@ -2636,7 +2636,7 @@ impl<'a> Visitor<'a> {
     ) -> SassResult<CalculationArg> {
         Ok(match expr {
             AstExpr::Paren(inner) => match &*inner {
-                AstExpr::FunctionCall(FunctionCallExpr { ref name, .. })
+                AstExpr::FunctionCall(FunctionCallExpr { name, .. })
                     if name.as_str().to_ascii_lowercase() == "var" =>
                 {
                     let result =

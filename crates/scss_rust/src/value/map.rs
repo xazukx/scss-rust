@@ -60,7 +60,7 @@ impl SassMap {
     }
 
     pub fn remove(&mut self, key: &Value) {
-        self.0.retain(|(ref k, ..)| k.not_equals(key));
+        self.0.retain(|(k, ..)| k.not_equals(key));
     }
 
     pub fn merge(&mut self, other: SassMap) {
@@ -94,7 +94,7 @@ impl SassMap {
 
     /// Returns true if the key already exists
     pub fn insert(&mut self, key: Spanned<Value>, value: Value) -> bool {
-        for (ref k, ref mut v) in &mut self.0 {
+        for (k, v) in &mut self.0 {
             if k.node == key.node {
                 *v = value;
                 return true;

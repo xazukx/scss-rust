@@ -239,7 +239,7 @@ pub(crate) fn str_insert(mut args: ArgumentResult, visitor: &mut Visitor) -> Sas
 #[allow(clippy::needless_pass_by_value)]
 pub(crate) fn unique_id(args: ArgumentResult, _: &mut Visitor) -> SassResult<Value> {
     args.max_args(0)?;
-    let mut rng = thread_rng();
+    let mut rng = rng();
     let string: String = std::iter::repeat(())
         .map(|()| rng.sample(Alphanumeric))
         .map(char::from)

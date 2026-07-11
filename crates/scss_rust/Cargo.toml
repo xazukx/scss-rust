@@ -1,13 +1,13 @@
 [package]
 name = "scss_rust"
 version = "0.13.4"
-edition = "2021"
+edition = "2024"
 description = "Internal implementation of the scss_rust compiler"
 readme = "README.md"
 license = "MIT"
 categories = ["web-programming"]
 keywords = ["scss", "sass", "css", "web"]
-rust-version = "1.70"
+rust-version = "1.85"
 
 [lib]
 name = "scss_rust"
@@ -21,13 +21,11 @@ bench = false
 rustdoc-args = ["--cfg", "doc_cfg"]
 
 [dependencies]
-# todo: replace with std::cell::LazyCell (msrv 1.80.0)
-once_cell = "1.15.0"
 # todo: use xorshift for random numbers
-rand = { version = "0.8", optional = true }
-wasm-bindgen = { version = "0.2.68", optional = true }
+rand = { version = "0.10", optional = true }
+wasm-bindgen = { version = "0.2.100", optional = true }
 # todo: benchmark using phf for global functions
-phf = { version = "0.11", features = ["macros"] }
+phf = { version = "0.14", features = ["macros"] }
 indexmap = "2"
 # todo: do we really need interning for things?
 lasso = "0.7"
