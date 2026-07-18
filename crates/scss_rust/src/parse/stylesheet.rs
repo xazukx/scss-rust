@@ -10,17 +10,17 @@ use std::{
 use crate::codemap::{Span, Spanned};
 
 use crate::{
+    ContextFlags, Options, Token,
     ast::*,
-    common::{unvendor, Identifier, QuoteKind},
+    common::{Identifier, QuoteKind, unvendor},
     error::SassResult,
     lexer::Lexer,
     utils::{is_name, is_name_start, is_plain_css_import, opposite_bracket},
-    ContextFlags, Options, Token,
 };
 
 use super::{
+    BaseParser, DeclarationOrBuffer, RESERVED_IDENTIFIERS, ScssParser, VariableDeclOrInterpolation,
     value::{Predicate, ValueParser},
-    BaseParser, DeclarationOrBuffer, ScssParser, VariableDeclOrInterpolation, RESERVED_IDENTIFIERS,
 };
 
 /// Default implementations are oriented towards the SCSS syntax, as both CSS and
@@ -183,33 +183,10 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
     }
 
     fn parse(&mut self) -> SassResult<StyleSheet> {
-        self.parse_stylesheet(false)
+        self.parse_stylesheet()
     }
 
-    /// Parse a stylesheet *fragment* in which property declarations (e.g.
-    /// `border: 1px solid black;`) are permitted at the top level, alongside the
-    /// usual style rules and variable declarations.
-    ///
-    /// This is the same as [`parse`](Self::parse) except that the document is
-    /// treated as the body of an (implicit) style rule, so an enclosing selector
-    /// block is no longer required. Every span/line/column is preserved exactly
-    /// as it would be for the equivalent content nested inside a selector, so the
-    /// following two inputs yield declarations with identical positions:
-    ///
-    /// ```scss
-    /// div {
-    ///     border: 1px solid black;
-    /// }
-    /// ```
-    ///
-    /// ```scss
-    /// border: 1px solid black;
-    /// ```
-    fn parse_allowing_declarations(&mut self) -> SassResult<StyleSheet> {
-        self.parse_stylesheet(true)
-    }
-
-    fn parse_stylesheet(&mut self, allow_declarations: bool) -> SassResult<StyleSheet> {
+    fn parse_stylesheet(&mut self) -> SassResult<StyleSheet> {
         let mut style_sheet = StyleSheet::new(
             self.is_plain_css(),
             self.options()
@@ -228,7 +205,7 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
         // accepts bare property declarations — without disturbing the default
         // (`parse`) behaviour or any nested parsing, which saves and restores
         // this flag around each real style rule.
-        if allow_declarations {
+        if self.options().allow_bare_declarations {
             *self.flags_mut() |= ContextFlags::IN_STYLE_RULE;
         }
 
@@ -247,7 +224,7 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
         for (idx, child) in style_sheet.body.iter().enumerate() {
             match child {
                 AstStmt::VariableDecl(_) | AstStmt::LoudComment(_) | AstStmt::SilentComment(_) => {
-                    continue
+                    continue;
                 }
                 AstStmt::Use(..) => style_sheet.uses.push(idx),
                 AstStmt::Forward(..) => style_sheet.forwards.push(idx),
@@ -564,7 +541,7 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
                     "Expected \"to\" or \"through\".",
                     self.toks().current_span(),
                 )
-                    .into())
+                    .into());
             }
         };
 
@@ -1295,7 +1272,7 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
             } else {
                 match identifier.contents.first() {
                     Some(InterpolationPart::Expr(e)) => {
-                        return Ok(AstSupportsCondition::Interpolation(e.clone().node))
+                        return Ok(AstSupportsCondition::Interpolation(e.clone().node));
                     }
                     _ => unreachable!(),
                 }
@@ -1870,7 +1847,7 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
             match self.parse_variable_declaration_or_interpolation()? {
                 VariableDeclOrInterpolation::Interpolation(interpolation) => interpolation,
                 VariableDeclOrInterpolation::VariableDecl(decl) => {
-                    return Ok(AstStmt::VariableDecl(decl))
+                    return Ok(AstStmt::VariableDecl(decl));
                 }
             }
         } else {
@@ -2027,7 +2004,7 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
                 buffer.add_interpolation(self.parse_single_interpolation()?);
             }
             Some(..) | None => {
-                return Err(("Expected identifier.", self.toks().current_span()).into())
+                return Err(("Expected identifier.", self.toks().current_span()).into());
             }
         }
 
@@ -2040,7 +2017,7 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
         let first = match self.toks().peek() {
             Some(Token { kind: '\\', .. }) => return true,
             Some(Token { kind: '#', .. }) => {
-                return matches!(self.toks().peek_n(1), Some(Token { kind: '{', .. }))
+                return matches!(self.toks().peek_n(1), Some(Token { kind: '{', .. }));
             }
             Some(Token { kind, .. }) if is_name_start(kind) => return true,
             Some(tok) => tok,
@@ -2424,7 +2401,7 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
         match variable_or_interpolation {
             VariableDeclOrInterpolation::Interpolation(int) => name_buffer.add_interpolation(int),
             VariableDeclOrInterpolation::VariableDecl(v) => {
-                return Ok(DeclarationOrBuffer::Stmt(AstStmt::VariableDecl(v)))
+                return Ok(DeclarationOrBuffer::Stmt(AstStmt::VariableDecl(v)));
             }
         }
 
@@ -2754,7 +2731,7 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
                 _ => {
                     return Err(
                         ("Invalid flag name.", self.toks_mut().span_from(flag_start)).into(),
-                    )
+                    );
                 }
             }
 
@@ -2796,7 +2773,7 @@ pub trait StylesheetParser<'a>: BaseParser + Sized {
                     match self.toks_mut().next() {
                         Some(tok) => buffer.add_char(tok.kind),
                         None => {
-                            return Err(("expected more input.", self.toks().current_span()).into())
+                            return Err(("expected more input.", self.toks().current_span()).into());
                         }
                     }
                 }

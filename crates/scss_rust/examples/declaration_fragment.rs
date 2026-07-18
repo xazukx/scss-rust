@@ -33,10 +33,10 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use scss_rust::{
+    Lexer, Options, OutputStyle, ScssParser, StyleSheet, StylesheetParser, Visitor,
     codemap::{CodeMap, SpanLoc},
     sass_ast::AstStmt,
     serializer::StyleSerializer,
-    Lexer, Options, OutputStyle, ScssParser, StyleSheet, StylesheetParser, Visitor,
 };
 
 /// The two inputs we care about: a conventional style rule, and just its body.
@@ -70,7 +70,7 @@ color: blue;
 /// Register `src` in a fresh `CodeMap` and parse it, allowing top-level
 /// declarations. Returns the sheet plus the map its spans resolve against.
 fn parse_fragment(src: &str, path: &Path) -> (StyleSheet, CodeMap) {
-    let options = Options::default();
+    let options = Options::default().allow_declarations(true);
     let mut map = CodeMap::new();
     let file = map.add_file(
         Arc::new(path.to_string_lossy().into_owned()),
@@ -80,7 +80,7 @@ fn parse_fragment(src: &str, path: &Path) -> (StyleSheet, CodeMap) {
     let lexer = Lexer::new_from_file(&file);
 
     let sheet = ScssParser::new(lexer, &options, empty_span, path)
-        .parse_allowing_declarations()
+        .parse()
         .expect("fragment should parse");
     (sheet, map)
 }
@@ -115,7 +115,9 @@ fn print_positions(body: &[AstStmt], map: &CodeMap, depth: usize) {
 
 /// Compile a fragment to CSS via the declaration-allowing visitor.
 fn compile_fragment(src: &str, path: &Path) -> String {
-    let options = Options::default().style(OutputStyle::Expanded);
+    let options = Options::default()
+        .style(OutputStyle::Expanded)
+        .allow_declarations(true);
     let mut map = CodeMap::new();
     let file = map.add_file(
         Arc::new(path.to_string_lossy().into_owned()),
@@ -125,13 +127,11 @@ fn compile_fragment(src: &str, path: &Path) -> String {
     let lexer = Lexer::new_from_file(&file);
 
     let sheet = ScssParser::new(lexer, &options, empty_span, path)
-        .parse_allowing_declarations()
+        .parse()
         .expect("parse");
 
     let mut visitor = Visitor::new(path, &options, &mut map, empty_span);
-    visitor
-        .visit_stylesheet_allowing_declarations(sheet)
-        .expect("visit");
+    visitor.visit_stylesheet(sheet).expect("visit");
     let stmts = visitor.finish();
     drop(visitor);
 

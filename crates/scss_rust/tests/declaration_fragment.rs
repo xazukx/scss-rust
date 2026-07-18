@@ -12,17 +12,17 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use scss_rust::{
+    Lexer, Options, OutputStyle, ScssParser, StyleSheet, StylesheetParser, Visitor,
     codemap::{CodeMap, LineCol},
     sass_ast::AstStmt,
     serializer::StyleSerializer,
-    Lexer, Options, OutputStyle, ScssParser, StyleSheet, StylesheetParser, Visitor,
 };
 
 /// Parse `src` as a fragment (declarations allowed at the top level), returning
 /// the parsed sheet together with the `CodeMap` its spans point into so callers
 /// can resolve positions.
 fn parse_fragment(src: &str) -> (StyleSheet, CodeMap) {
-    let options = Options::default();
+    let options = Options::default().allow_bare_declarations(true);
     let mut map = CodeMap::new();
     let path = PathBuf::from("frag.scss");
     let file = map.add_file(
@@ -33,14 +33,14 @@ fn parse_fragment(src: &str) -> (StyleSheet, CodeMap) {
     let lexer = Lexer::new_from_file(&file);
 
     let sheet = ScssParser::new(lexer, &options, empty_span, &path)
-        .parse_allowing_declarations()
+        .parse()
         .expect("fragment should parse");
     (sheet, map)
 }
 
 /// Compile `src` as a fragment with the given output style, returning the CSS.
 fn compile_fragment_with(src: &str, style: OutputStyle) -> Result<String, String> {
-    let options = Options::default().style(style);
+    let options = Options::default().style(style).allow_bare_declarations(true);
 
     let mut map = CodeMap::new();
     let path = PathBuf::from("frag.scss");
@@ -52,12 +52,12 @@ fn compile_fragment_with(src: &str, style: OutputStyle) -> Result<String, String
     let lexer = Lexer::new_from_file(&file);
 
     let sheet = ScssParser::new(lexer, &options, empty_span, &path)
-        .parse_allowing_declarations()
+        .parse()
         .map_err(|e| format!("parse: {:?}", e))?;
 
     let mut visitor = Visitor::new(&path, &options, &mut map, empty_span);
     visitor
-        .visit_stylesheet_allowing_declarations(sheet)
+        .visit_stylesheet(sheet)
         .map_err(|e| format!("visit: {:?}", e))?;
     let stmts = visitor.finish();
     drop(visitor);
@@ -251,7 +251,8 @@ fn default_parse_rejects_bare_declaration() {
 fn default_visit_rejects_bare_declaration() {
     // Even when parsed as a fragment, the *default* visitor still enforces the
     // "declarations must be inside a style rule" rule.
-    let options = Options::default();
+    let parser_options = Options::default().allow_bare_declarations(true);
+    let visitor_options = Options::default();
     let mut map = CodeMap::new();
     let path = PathBuf::from("frag.scss");
     let src = "border: 1px solid black;\n";
@@ -261,11 +262,11 @@ fn default_visit_rejects_bare_declaration() {
     );
     let empty_span = file.span.subspan(0, 0);
     let lexer = Lexer::new_from_file(&file);
-    let sheet = ScssParser::new(lexer, &options, empty_span, &path)
-        .parse_allowing_declarations()
+    let sheet = ScssParser::new(lexer, &parser_options, empty_span, &path)
+        .parse()
         .unwrap();
 
-    let mut visitor = Visitor::new(&path, &options, &mut map, empty_span);
+    let mut visitor = Visitor::new(&path, &visitor_options, &mut map, empty_span);
     let err = visitor.visit_stylesheet(sheet).unwrap_err();
     assert!(
         format!("{:?}", err).contains("Declarations may only be used within style rules"),
@@ -277,6 +278,32 @@ fn default_visit_rejects_bare_declaration() {
 // ---------------------------------------------------------------------------
 // A top-level parent selector (`&`) resolves to the implicit `:scope` root
 // ---------------------------------------------------------------------------
+
+#[test]
+fn default_visit_still_rejects_top_level_parent_selector() {
+    // Outside fragment mode, a top-level `&` is still an error.
+    let options = Options::default();
+    let mut map = CodeMap::new();
+    let path = PathBuf::from("frag.scss");
+    let src = "& .yolo {\n  color: red;\n}\n";
+    let file = map.add_file(
+        Arc::new(path.to_string_lossy().into_owned()),
+        Arc::new(src.to_owned()),
+    );
+    let empty_span = file.span.subspan(0, 0);
+    let lexer = Lexer::new_from_file(&file);
+    let sheet = ScssParser::new(lexer, &options, empty_span, &path)
+        .parse()
+        .unwrap();
+
+    let mut visitor = Visitor::new(&path, &options, &mut map, empty_span);
+    let err = visitor.visit_stylesheet(sheet).unwrap_err();
+    assert!(
+        format!("{:?}", err).contains("Top-level selectors may not contain the parent selector"),
+        "unexpected error: {:?}",
+        err
+    );
+}
 
 #[test]
 fn top_level_parent_selector_resolves_to_scope() {
@@ -327,31 +354,4 @@ fn nested_parent_resolves_against_enclosing_rule() {
     let css = compile_fragment("& .yolo {\n  color: red;\n  & span { color: blue; }\n}\n");
     assert!(css.contains(":scope .yolo {"), "css: {css:?}");
     assert!(css.contains(":scope .yolo span {"), "css: {css:?}");
-}
-
-#[test]
-fn default_visit_still_rejects_top_level_parent_selector() {
-    // Outside fragment mode, a top-level `&` is still an error.
-    let options = Options::default();
-    let mut map = CodeMap::new();
-    let path = PathBuf::from("frag.scss");
-    let src = "& .yolo {\n  color: red;\n}\n";
-    let file = map.add_file(
-        Arc::new(path.to_string_lossy().into_owned()),
-        Arc::new(src.to_owned()),
-    );
-    let empty_span = file.span.subspan(0, 0);
-    let lexer = Lexer::new_from_file(&file);
-    let sheet = ScssParser::new(lexer, &options, empty_span, &path)
-        .parse_allowing_declarations()
-        .unwrap();
-
-    let mut visitor = Visitor::new(&path, &options, &mut map, empty_span);
-    let err = visitor.visit_stylesheet(sheet).unwrap_err();
-    assert!(
-        format!("{:?}", err)
-            .contains("Top-level selectors may not contain the parent selector"),
-        "unexpected error: {:?}",
-        err
-    );
 }

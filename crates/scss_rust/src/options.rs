@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{builtin::Builtin, Fs, Logger, StdFs, StdLogger};
+use crate::{Fs, Logger, StdFs, StdLogger, builtin::Builtin};
 
 /// Configuration for Sass compilation
 ///
@@ -20,6 +20,7 @@ pub struct Options<'a> {
     pub(crate) quiet: bool,
     pub(crate) input_syntax: Option<InputSyntax>,
     pub(crate) custom_fns: HashMap<String, Builtin>,
+    pub(crate) allow_bare_declarations: bool,
 }
 
 impl Default for Options<'_> {
@@ -35,6 +36,7 @@ impl Default for Options<'_> {
             quiet: false,
             input_syntax: None,
             custom_fns: HashMap::new(),
+            allow_bare_declarations: false,
         }
     }
 }
@@ -162,6 +164,24 @@ impl<'a> Options<'a> {
     #[inline]
     pub const fn input_syntax(mut self, syntax: InputSyntax) -> Self {
         self.input_syntax = Some(syntax);
+        self
+    }
+
+    /// Parse *fragments* — stylesheets in which bare property declarations (e.g.
+    /// `color: red;`) are permitted at the top level, as if the whole document were
+    /// the body of an implicit style rule.
+    ///
+    /// This applies not only to the entry document but to every file subsequently
+    /// loaded via `@use`, `@forward` or `@import`, so a fragment stylesheet can `@use`
+    /// another fragment without the loaded module tripping the "expected `{`" parse
+    /// error that strict top-level parsing would raise.
+    ///
+    /// By default this is `false` and standard Sass parsing (declarations only inside
+    /// style rules) is used.
+    #[must_use]
+    #[inline]
+    pub const fn allow_bare_declarations(mut self, allow: bool) -> Self {
+        self.allow_bare_declarations = allow;
         self
     }
 
