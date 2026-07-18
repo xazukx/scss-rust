@@ -2,22 +2,23 @@ mod functions;
 pub(crate) mod modules;
 
 pub(crate) use functions::{
-    color, list, map, math, meta, selector, string, DISALLOWED_PLAIN_CSS_FUNCTION_NAMES,
-    GLOBAL_FUNCTIONS,
+    DISALLOWED_PLAIN_CSS_FUNCTION_NAMES, GLOBAL_FUNCTIONS, color, list, map, math, meta, selector,
+    string,
 };
 
 pub use functions::Builtin;
 
 /// Imports common to all builtin fns
 mod builtin_imports {
-    pub(crate) use super::functions::{Builtin, GlobalFunctionMap, GLOBAL_FUNCTIONS};
+    pub(crate) use super::functions::{Builtin, GLOBAL_FUNCTIONS, GlobalFunctionMap};
 
     pub(crate) use crate::codemap::{Span, Spanned};
 
     #[cfg(feature = "random")]
-    pub(crate) use rand::{distr::Alphanumeric, rng, RngExt};
+    pub(crate) use rand::{RngExt, distr::Alphanumeric, rng};
 
     pub(crate) use crate::{
+        Options,
         ast::{Argument, ArgumentDeclaration, ArgumentResult, MaybeEvaledArguments},
         color::Color,
         common::{BinaryOp, Brackets, Identifier, ListSeparator, QuoteKind},
@@ -25,7 +26,6 @@ mod builtin_imports {
         evaluate::Visitor,
         unit::Unit,
         value::{CalculationArg, Number, SassFunction, SassMap, SassNumber, Value},
-        Options,
     };
 
     pub(crate) use std::{

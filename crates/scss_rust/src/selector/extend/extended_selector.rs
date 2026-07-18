@@ -1,6 +1,6 @@
 use std::{
     cell::RefCell,
-    collections::{hash_set::IntoIter, HashSet},
+    collections::{HashSet, hash_set::IntoIter},
     hash::{Hash, Hasher},
     ops::{Deref, DerefMut},
     ptr,

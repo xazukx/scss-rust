@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::{ast::KeyframesSelector, error::SassResult, lexer::Lexer, Token};
+use crate::{Token, ast::KeyframesSelector, error::SassResult, lexer::Lexer};
 
 use super::BaseParser;
 

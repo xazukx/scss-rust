@@ -402,7 +402,7 @@ impl Module {
                     format!("Cannot modify built-in variable '{}'.", name.node.as_str()),
                     name.span,
                 )
-                    .into())
+                    .into());
             }
             Self::Environment { scope, .. }
             | Self::Forwarded(ForwardedModule { scope, .. })

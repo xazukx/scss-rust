@@ -6,13 +6,13 @@ use std::{
 use crate::codemap::Span;
 
 use crate::{
+    Options,
     error::SassResult,
     serializer::{inspect_float, inspect_number},
-    unit::{are_any_convertible, known_compatibilities_by_unit, Unit, UNIT_CONVERSION_TABLE},
-    Options,
+    unit::{UNIT_CONVERSION_TABLE, Unit, are_any_convertible, known_compatibilities_by_unit},
 };
 
-use super::{fuzzy_as_int, Number};
+use super::{Number, fuzzy_as_int};
 
 #[derive(Debug, Clone)]
 pub struct SassNumber {

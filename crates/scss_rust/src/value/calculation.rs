@@ -4,12 +4,12 @@ use std::iter::Iterator;
 use crate::codemap::Span;
 
 use crate::{
+    Options,
     common::BinaryOp,
     error::SassResult,
     serializer::inspect_number,
     unit::Unit,
     value::{SassNumber, Value},
-    Options,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]

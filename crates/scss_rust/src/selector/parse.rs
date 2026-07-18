@@ -1,6 +1,6 @@
 use crate::codemap::Span;
 
-use crate::{common::unvendor, error::SassResult, lexer::Lexer, parse::BaseParser, Token};
+use crate::{Token, common::unvendor, error::SassResult, lexer::Lexer, parse::BaseParser};
 
 use super::{
     Attribute, Combinator, ComplexSelector, ComplexSelectorComponent, CompoundSelector, Namespace,
@@ -450,7 +450,7 @@ impl SelectorParser {
             self.whitespace()?;
             match self.toks.peek() {
                 Some(t) if !t.kind.is_ascii_digit() => {
-                    return Err(("Expected a number.", self.span).into())
+                    return Err(("Expected a number.", self.span).into());
                 }
                 None => return Err(("Expected a number.", self.span).into()),
                 Some(..) => {}

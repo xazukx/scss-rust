@@ -126,7 +126,7 @@ pub(crate) fn append(mut args: ArgumentResult, visitor: &mut Visitor) -> SassRes
                     "$separator: Must be \"space\", \"comma\", \"slash\", or \"auto\".",
                     args.span(),
                 )
-                    .into())
+                    .into());
             }
         },
         v => {
@@ -134,7 +134,7 @@ pub(crate) fn append(mut args: ArgumentResult, visitor: &mut Visitor) -> SassRes
                 format!("$separator: {} is not a string.", v.inspect(args.span())?),
                 args.span(),
             )
-                .into())
+                .into());
         }
     };
 
@@ -178,7 +178,7 @@ pub(crate) fn join(mut args: ArgumentResult, visitor: &mut Visitor) -> SassResul
                     "$separator: Must be \"space\", \"comma\", \"slash\", or \"auto\".",
                     args.span(),
                 )
-                    .into())
+                    .into());
             }
         },
         v => {
@@ -186,7 +186,7 @@ pub(crate) fn join(mut args: ArgumentResult, visitor: &mut Visitor) -> SassResul
                 format!("$separator: {} is not a string.", v.inspect(args.span())?),
                 args.span(),
             )
-                .into())
+                .into());
         }
     };
 

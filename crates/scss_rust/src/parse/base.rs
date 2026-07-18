@@ -1,8 +1,8 @@
 use crate::{
+    Token,
     error::SassResult,
     lexer::Lexer,
     utils::{as_hex, hex_char_for, is_name, is_name_start, opposite_bracket},
-    Token,
 };
 
 pub trait BaseParser {
@@ -164,7 +164,7 @@ pub trait BaseParser {
                 text.push_str(&self.parse_escape(true)?);
             }
             Some(..) | None => {
-                return Err(("Expected identifier.", self.toks().current_span()).into())
+                return Err(("Expected identifier.", self.toks().current_span()).into());
             }
         }
 

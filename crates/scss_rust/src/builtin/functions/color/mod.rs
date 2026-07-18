@@ -3,7 +3,7 @@ use crate::codemap::Span;
 use crate::{
     builtin::builtin_imports::Unit,
     error::SassResult,
-    value::{conversion_factor, Number, Value},
+    value::{Number, Value, conversion_factor},
 };
 
 use super::GlobalFunctionMap;

@@ -124,7 +124,7 @@ pub(crate) fn selector_append(args: ArgumentResult, visitor: &mut Visitor) -> Sa
                                         ),
                                         span,
                                     )
-                                        .into())
+                                        .into());
                                 }
                             }];
                             components.extend(complex.components.into_iter().skip(1));

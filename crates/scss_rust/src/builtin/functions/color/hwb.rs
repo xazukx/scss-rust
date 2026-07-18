@@ -1,9 +1,8 @@
 use crate::builtin::builtin_imports::*;
 
 use super::{
-    angle_value,
+    ParsedChannels, angle_value,
     rgb::{parse_channels, percentage_or_unitless},
-    ParsedChannels,
 };
 
 pub(crate) fn blackness(mut args: ArgumentResult, visitor: &mut Visitor) -> SassResult<Value> {

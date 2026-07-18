@@ -134,11 +134,7 @@ impl StringExpr {
                 }
             }
         }
-        if contains_double_quote {
-            '\''
-        } else {
-            '"'
-        }
+        if contains_double_quote { '\'' } else { '"' }
     }
 
     pub fn as_interpolation(self, is_static: bool) -> Interpolation {

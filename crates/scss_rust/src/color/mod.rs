@@ -15,7 +15,7 @@
 //! Named colors retain their original casing,
 //! so `rEd` should be emitted as `rEd`.
 
-use crate::value::{fuzzy_round, Number};
+use crate::value::{Number, fuzzy_round};
 pub(crate) use name::NAMED_COLORS;
 
 mod name;

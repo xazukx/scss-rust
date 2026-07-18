@@ -3,11 +3,11 @@ use std::cmp::Ordering;
 use crate::codemap::Span;
 
 use crate::{
+    Options,
     common::{BinaryOp, QuoteKind},
     error::SassResult,
     unit::Unit,
     value::{SassNumber, Value},
-    Options,
 };
 
 pub(crate) fn add(left: Value, right: Value, options: &Options, span: Span) -> SassResult<Value> {
@@ -30,7 +30,7 @@ pub(crate) fn add(left: Value, right: Value, options: &Options, span: Span) -> S
                     ),
                     span,
                 )
-                    .into())
+                    .into());
             }
         },
         Value::Map(..) | Value::FunctionRef(..) => {
@@ -38,7 +38,7 @@ pub(crate) fn add(left: Value, right: Value, options: &Options, span: Span) -> S
                 format!("{} isn't a valid CSS value.", left.inspect(span)?),
                 span,
             )
-                .into())
+                .into());
         }
         Value::True | Value::False => match right {
             Value::String(s, QuoteKind::Quoted) => Value::String(
@@ -128,7 +128,7 @@ pub(crate) fn add(left: Value, right: Value, options: &Options, span: Span) -> S
                     format!("{} isn't a valid CSS value.", right.inspect(span)?),
                     span,
                 )
-                    .into())
+                    .into());
             }
             Value::Color(..) | Value::Calculation(..) => {
                 return Err((
@@ -140,7 +140,7 @@ pub(crate) fn add(left: Value, right: Value, options: &Options, span: Span) -> S
                     ),
                     span,
                 )
-                    .into())
+                    .into());
             }
         },
         c @ Value::Color(..) => match right {
@@ -162,7 +162,7 @@ pub(crate) fn add(left: Value, right: Value, options: &Options, span: Span) -> S
                     ),
                     span,
                 )
-                    .into())
+                    .into());
             }
         },
         Value::String(text, quotes) => match right {
@@ -204,7 +204,7 @@ pub(crate) fn sub(left: Value, right: Value, options: &Options, span: Span) -> S
                 ),
                 span,
             )
-                .into())
+                .into());
         }
         Value::Null => Value::String(
             format!("-{}", right.to_css_string(span, options.is_compressed())?),
@@ -269,7 +269,7 @@ pub(crate) fn sub(left: Value, right: Value, options: &Options, span: Span) -> S
                     format!("{} isn't a valid CSS value.", right.inspect(span)?),
                     span,
                 )
-                    .into())
+                    .into());
             }
             Value::Color(..) | Value::Calculation(..) => {
                 return Err((
@@ -281,7 +281,7 @@ pub(crate) fn sub(left: Value, right: Value, options: &Options, span: Span) -> S
                     ),
                     span,
                 )
-                    .into())
+                    .into());
             }
             Value::Null => Value::String(
                 format!("{}{}-", num.to_string(options.is_compressed()), unit),
@@ -298,7 +298,7 @@ pub(crate) fn sub(left: Value, right: Value, options: &Options, span: Span) -> S
                     ),
                     span,
                 )
-                    .into())
+                    .into());
             }
             _ => Value::String(
                 format!(
@@ -387,7 +387,7 @@ pub(crate) fn mul(left: Value, right: Value, _: &Options, span: Span) -> SassRes
                     ),
                     span,
                 )
-                    .into())
+                    .into());
             }
         },
         _ => {
@@ -399,7 +399,7 @@ pub(crate) fn mul(left: Value, right: Value, _: &Options, span: Span) -> SassRes
                 ),
                 span,
             )
-                .into())
+                .into());
         }
     })
 }
@@ -488,7 +488,7 @@ pub(crate) fn div(left: Value, right: Value, options: &Options, span: Span) -> S
                 ),
                 span,
             )
-                .into())
+                .into());
         }
         (left, right) => Value::String(
             format!(
@@ -535,7 +535,7 @@ pub(crate) fn rem(left: Value, right: Value, _: &Options, span: Span) -> SassRes
                 ),
                 span,
             )
-                .into())
+                .into());
         }
     })
 }

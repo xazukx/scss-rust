@@ -8,7 +8,7 @@ use crate::builtin::{
 
 #[cfg(feature = "random")]
 use crate::builtin::math::random;
-use crate::value::{conversion_factor, SassNumber};
+use crate::value::{SassNumber, conversion_factor};
 
 fn coerce_to_rad(num: f64, unit: Unit) -> f64 {
     debug_assert!(matches!(
@@ -36,7 +36,7 @@ fn clamp(mut args: ArgumentResult, _: &mut Visitor) -> SassResult<Value> {
                 format!("$min: {} is not a number.", v.inspect(args.span())?),
                 span,
             )
-                .into())
+                .into());
         }
     };
 
@@ -47,7 +47,7 @@ fn clamp(mut args: ArgumentResult, _: &mut Visitor) -> SassResult<Value> {
                 format!("$number: {} is not a number.", v.inspect(span)?),
                 span,
             )
-                .into())
+                .into());
         }
     };
 
@@ -388,7 +388,7 @@ fn atan2(mut args: ArgumentResult, _: &mut Visitor) -> SassResult<Value> {
                 format!("$y: {} is not a number.", v.inspect(args.span())?),
                 args.span(),
             )
-                .into())
+                .into());
         }
     };
 
@@ -401,7 +401,7 @@ fn atan2(mut args: ArgumentResult, _: &mut Visitor) -> SassResult<Value> {
                 format!("$x: {} is not a number.", v.inspect(args.span())?),
                 args.span(),
             )
-                .into())
+                .into());
         }
     };
 

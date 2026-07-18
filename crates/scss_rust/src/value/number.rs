@@ -8,7 +8,7 @@ use std::{
 
 use crate::{
     error::SassResult,
-    unit::{Unit, UNIT_CONVERSION_TABLE},
+    unit::{UNIT_CONVERSION_TABLE, Unit},
 };
 
 use crate::codemap::Span;
@@ -87,20 +87,12 @@ pub(crate) fn fuzzy_less_than_or_equals(number1: f64, number2: f64) -> bool {
 impl Number {
     /// This differs from `std::cmp::min` when either value is NaN
     pub fn min(self, other: Self) -> Self {
-        if self < other {
-            self
-        } else {
-            other
-        }
+        if self < other { self } else { other }
     }
 
     /// This differs from `std::cmp::max` when either value is NaN
     pub fn max(self, other: Self) -> Self {
-        if self > other {
-            self
-        } else {
-            other
-        }
+        if self > other { self } else { other }
     }
 
     pub fn is_positive(self) -> bool {
@@ -389,11 +381,7 @@ fn modulo(n1: f64, n2: f64) -> f64 {
 
     let result = real_mod(n1, n2);
 
-    if result == 0.0 {
-        0.0
-    } else {
-        result + n2
-    }
+    if result == 0.0 { 0.0 } else { result + n2 }
 }
 
 impl Rem for Number {

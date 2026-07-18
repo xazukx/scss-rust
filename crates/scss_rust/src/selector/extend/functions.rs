@@ -177,10 +177,12 @@ fn weave_parents(
         }),
     );
 
-    let mut choices = vec![vec![initial_combinators
-        .into_iter()
-        .map(ComplexSelectorComponent::Combinator)
-        .collect::<Vec<ComplexSelectorComponent>>()]];
+    let mut choices = vec![vec![
+        initial_combinators
+            .into_iter()
+            .map(ComplexSelectorComponent::Combinator)
+            .collect::<Vec<ComplexSelectorComponent>>(),
+    ]];
 
     for group in lcs {
         choices.push(
@@ -374,17 +376,21 @@ fn merge_final_combinators(
         // is a supersequence of the other, use that, otherwise give up.
         let lcs = longest_common_subsequence(&combinators_one, &combinators_two, None);
         if lcs == combinators_one {
-            result.push_front(vec![combinators_two
-                .into_iter()
-                .map(ComplexSelectorComponent::Combinator)
-                .rev()
-                .collect()]);
+            result.push_front(vec![
+                combinators_two
+                    .into_iter()
+                    .map(ComplexSelectorComponent::Combinator)
+                    .rev()
+                    .collect(),
+            ]);
         } else if lcs == combinators_two {
-            result.push_front(vec![combinators_one
-                .into_iter()
-                .map(ComplexSelectorComponent::Combinator)
-                .rev()
-                .collect()]);
+            result.push_front(vec![
+                combinators_one
+                    .into_iter()
+                    .map(ComplexSelectorComponent::Combinator)
+                    .rev()
+                    .collect(),
+            ]);
         } else {
             return None;
         }

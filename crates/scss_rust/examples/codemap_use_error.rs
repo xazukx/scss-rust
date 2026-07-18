@@ -35,8 +35,8 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use scss_rust::{
-    codemap::{CodeMap, LineCol, SpanLoc},
     Fs, Lexer, Options, ScssParser, StylesheetParser, Visitor,
+    codemap::{CodeMap, LineCol, SpanLoc},
 };
 
 /// A trivial in-memory file system so `@use` can resolve files without touching

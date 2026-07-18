@@ -1,11 +1,11 @@
 use std::{path::PathBuf, sync::Arc};
 
 use scss_rust::{
+    Lexer, Options, OutputStyle, ScssParser, StylesheetParser, Visitor,
     codemap::{CodeMap, Spanned},
     sass_ast::{AstImport, AstStmt, AstVariableDecl},
     sass_value::Value,
-    serializer::{serialize_value, StyleSerializer},
-    Lexer, Options, OutputStyle, ScssParser, StylesheetParser, Visitor,
+    serializer::{StyleSerializer, serialize_value},
 };
 
 #[derive(Debug, Default)]

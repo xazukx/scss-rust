@@ -3,11 +3,11 @@ use std::{collections::BTreeMap, path::Path, sync::Arc};
 use crate::codemap::{Span, Spanned};
 
 use crate::{
-    ast::*, builtin::DISALLOWED_PLAIN_CSS_FUNCTION_NAMES, common::QuoteKind, error::SassResult,
-    lexer::Lexer, ContextFlags, Options,
+    ContextFlags, Options, ast::*, builtin::DISALLOWED_PLAIN_CSS_FUNCTION_NAMES, common::QuoteKind,
+    error::SassResult, lexer::Lexer,
 };
 
-use super::{value::ValueParser, BaseParser, StylesheetParser};
+use super::{BaseParser, StylesheetParser, value::ValueParser};
 
 #[derive(Debug)]
 pub struct CssParser<'a> {

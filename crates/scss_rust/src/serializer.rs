@@ -3,6 +3,7 @@ use std::io::Write;
 use crate::codemap::{CodeMap, Span};
 
 use crate::{
+    Options,
     ast::{CssStmt, MediaQuery, Style, SupportsRule},
     color::{Color, ColorFormat, NAMED_COLORS},
     common::{BinaryOp, Brackets, ListSeparator, QuoteKind},
@@ -13,10 +14,9 @@ use crate::{
     },
     utils::hex_char_for,
     value::{
-        fuzzy_equals, ArgList, CalculationArg, CalculationName, SassCalculation, SassFunction,
-        SassMap, SassNumber, Value,
+        ArgList, CalculationArg, CalculationName, SassCalculation, SassFunction, SassMap,
+        SassNumber, Value, fuzzy_equals,
     },
-    Options,
 };
 
 pub(crate) fn serialize_selector_list(

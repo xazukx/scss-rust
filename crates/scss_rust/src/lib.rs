@@ -263,7 +263,7 @@ pub fn compile_with_files<P: AsRef<Path>>(
                 code_map,
                 *e,
                 options.unicode_error_messages,
-            ))
+            ));
         }
     };
 
@@ -275,7 +275,7 @@ pub fn compile_with_files<P: AsRef<Path>>(
                 code_map,
                 *e,
                 options.unicode_error_messages,
-            ))
+            ));
         }
     };
     let stmts = visitor.finish();

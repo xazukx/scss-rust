@@ -70,7 +70,7 @@ color: blue;
 /// Register `src` in a fresh `CodeMap` and parse it, allowing top-level
 /// declarations. Returns the sheet plus the map its spans resolve against.
 fn parse_fragment(src: &str, path: &Path) -> (StyleSheet, CodeMap) {
-    let options = Options::default().allow_declarations(true);
+    let options = Options::default().allow_bare_declarations(true);
     let mut map = CodeMap::new();
     let file = map.add_file(
         Arc::new(path.to_string_lossy().into_owned()),
@@ -117,7 +117,7 @@ fn print_positions(body: &[AstStmt], map: &CodeMap, depth: usize) {
 fn compile_fragment(src: &str, path: &Path) -> String {
     let options = Options::default()
         .style(OutputStyle::Expanded)
-        .allow_declarations(true);
+        .allow_bare_declarations(true);
     let mut map = CodeMap::new();
     let file = map.add_file(
         Arc::new(path.to_string_lossy().into_owned()),

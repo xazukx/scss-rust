@@ -642,7 +642,7 @@ impl Pseudo {
                 return Specificity {
                     min: BASE_SPECIFICITY,
                     max: BASE_SPECIFICITY,
-                }
+                };
             }
         };
 

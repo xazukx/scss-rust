@@ -2,7 +2,7 @@ use std::path::Path;
 
 use crate::codemap::Span;
 
-use crate::{ast::*, error::SassResult, lexer::Lexer, ContextFlags, Options, Token};
+use crate::{ContextFlags, Options, Token, ast::*, error::SassResult, lexer::Lexer};
 
 use super::{BaseParser, StylesheetParser};
 
@@ -46,7 +46,7 @@ impl<'a> BaseParser for SassParser<'a> {
             let mut next = self.toks.next();
             match next {
                 Some(Token { kind: '\n', .. }) => {
-                    return Err(("expected */.", self.toks.prev_span()).into())
+                    return Err(("expected */.", self.toks.prev_span()).into());
                 }
                 Some(Token { kind: '*', .. }) => {}
                 _ => continue,

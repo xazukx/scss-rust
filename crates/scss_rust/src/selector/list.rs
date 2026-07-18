@@ -7,7 +7,7 @@ use std::{
 
 use crate::codemap::Span;
 
-use super::{unify_complex, ComplexSelector, ComplexSelectorComponent};
+use super::{ComplexSelector, ComplexSelectorComponent, unify_complex};
 
 use crate::{
     common::{Brackets, ListSeparator, QuoteKind},

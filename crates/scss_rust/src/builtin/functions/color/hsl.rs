@@ -3,9 +3,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::{builtin::builtin_imports::*, serializer::serialize_number, value::SassNumber};
 
 use super::{
-    angle_value,
+    ParsedChannels, angle_value,
     rgb::{function_string, parse_channels, percentage_or_unitless},
-    ParsedChannels,
 };
 
 fn hsl_3_args(
@@ -262,14 +261,14 @@ pub(crate) fn grayscale(mut args: ArgumentResult, visitor: &mut Visitor) -> Sass
             return Ok(Value::String(
                 format!("grayscale({}{})", n.inspect(), u),
                 QuoteKind::None,
-            ))
+            ));
         }
         v => {
             return Err((
                 format!("$color: {} is not a color.", v.inspect(args.span())?),
                 args.span(),
             )
-                .into())
+                .into());
         }
     };
     Ok(Value::Color(Arc::new(color.desaturate(Number::one()))))

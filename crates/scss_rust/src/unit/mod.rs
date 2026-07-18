@@ -2,7 +2,7 @@ use std::{fmt, sync::Arc};
 
 use crate::interner::InternedString;
 
-pub(crate) use conversion::{known_compatibilities_by_unit, UNIT_CONVERSION_TABLE};
+pub(crate) use conversion::{UNIT_CONVERSION_TABLE, known_compatibilities_by_unit};
 
 mod conversion;
 

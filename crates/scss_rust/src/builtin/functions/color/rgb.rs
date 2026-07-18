@@ -53,7 +53,7 @@ fn inner_rgb_2_arg(
                 return Ok(Value::String(
                     function_string(name, &[color, alpha], visitor, args.span())?,
                     QuoteKind::None,
-                ))
+                ));
             }
         }
     } else if alpha.is_special_function() {
@@ -403,7 +403,7 @@ pub(crate) fn mix(mut args: ArgumentResult, visitor: &mut Visitor) -> SassResult
                 ),
                 args.span(),
             )
-                .into())
+                .into());
         }
     };
     Ok(Value::Color(Arc::new(color1.mix(&color2, weight))))
