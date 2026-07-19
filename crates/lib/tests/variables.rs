@@ -429,4 +429,32 @@ test!(
     "a {\n  color: red;\n}\n"
 );
 
+// A `!global` declaration writes to the global scope; a subsequent plain
+// declaration in the same rule remains local to that rule. Reading the local
+// variable inside the rule succeeds.
+test!(
+    global_flag_does_not_affect_following_local_var,
+    ".name {\n  $bg: beige !global;\n  $cool: green;\n  color: $cool;\n}\n",
+    ".name {\n  color: green;\n}\n"
+);
+// The local variable is still visible from a nested rule inside the same block.
+test!(
+    local_var_after_global_flag_visible_in_nested_rule,
+    ".name {\n  $bg: beige !global;\n  $cool: green;\n  a {\n    color: $cool;\n  }\n}\n",
+    ".name a {\n  color: green;\n}\n"
+);
+// The `!global` variable *is* accessible outside the rule it was declared in.
+test!(
+    global_flag_var_visible_outside_rule,
+    ".name {\n  $bg: beige !global;\n  $cool: green;\n}\n\n.other {\n  color: $bg;\n}\n",
+    ".other {\n  color: beige;\n}\n"
+);
+// The plain (non-`!global`) variable is local, so reading it outside the rule
+// is correctly an error — matching dart-sass.
+error!(
+    local_var_after_global_flag_not_visible_outside_rule,
+    ".name {\n  $bg: beige !global;\n  $cool: green;\n}\n\n.other {\n  color: $cool;\n}\n",
+    "Error: Undefined variable 'cool'."
+);
+
 // todo: test that all scopes can affect global vars

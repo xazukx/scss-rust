@@ -93,7 +93,7 @@ impl Sub<Pos> for Pos {
 ///
 /// `low`/`high` are byte offsets **relative to the start of `file`**, so they map
 /// directly onto positions a user would recognise in that file.
-#[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct Span {
     /// The file this span points into.
     file: FileId,

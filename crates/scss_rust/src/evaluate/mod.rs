@@ -1,6 +1,6 @@
 pub(crate) use bin_op::{cmp, div};
 pub(crate) use env::Environment;
-pub use visitor::Visitor;
+pub use visitor::{CallFrame, CallKind, RecordedVariable, Visitor};
 
 mod bin_op;
 mod css_tree;

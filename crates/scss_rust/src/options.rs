@@ -21,6 +21,7 @@ pub struct Options<'a> {
     pub(crate) input_syntax: Option<InputSyntax>,
     pub(crate) custom_fns: HashMap<String, Builtin>,
     pub(crate) allow_bare_declarations: bool,
+    pub(crate) record_variable_values: bool,
 }
 
 impl Default for Options<'_> {
@@ -37,6 +38,7 @@ impl Default for Options<'_> {
             input_syntax: None,
             custom_fns: HashMap::new(),
             allow_bare_declarations: false,
+            record_variable_values: false,
         }
     }
 }
@@ -182,6 +184,26 @@ impl<'a> Options<'a> {
     #[inline]
     pub const fn allow_bare_declarations(mut self, allow: bool) -> Self {
         self.allow_bare_declarations = allow;
+        self
+    }
+
+    /// Record the evaluated value of every variable declaration as it is
+    /// visited, keyed by the declaration's span.
+    ///
+    /// Variables declared inside a nested rule are scoped to that rule and no
+    /// longer exist in the environment once evaluation finishes, so looking them
+    /// up afterwards with [`crate::Visitor::env`] reports them as undefined. When
+    /// this flag is set, each declaration's name and evaluated value are captured
+    /// at the moment they are computed — while still in scope — and retained in
+    /// [`crate::Visitor::variable_values`] for inspection after compilation. This
+    /// is intended for tooling (symbol collection, language servers, etc.) rather
+    /// than normal compilation.
+    ///
+    /// By default this is `false` and no values are recorded.
+    #[must_use]
+    #[inline]
+    pub const fn record_variable_values(mut self, record: bool) -> Self {
+        self.record_variable_values = record;
         self
     }
 

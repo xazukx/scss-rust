@@ -40,7 +40,9 @@ fn parse_fragment(src: &str) -> (StyleSheet, CodeMap) {
 
 /// Compile `src` as a fragment with the given output style, returning the CSS.
 fn compile_fragment_with(src: &str, style: OutputStyle) -> Result<String, String> {
-    let options = Options::default().style(style).allow_bare_declarations(true);
+    let options = Options::default()
+        .style(style)
+        .allow_bare_declarations(true);
 
     let mut map = CodeMap::new();
     let path = PathBuf::from("frag.scss");

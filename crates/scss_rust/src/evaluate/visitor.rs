@@ -101,6 +101,96 @@ pub struct CallableContentBlock {
     env: Environment,
 }
 
+/// Whether a [`CallFrame`] is a mixin `@include` or a function call.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CallKind {
+    /// A mixin invoked via `@include`.
+    Mixin,
+    /// A function invoked in an expression.
+    Function,
+}
+
+impl CallKind {
+    /// The lowercase Sass keyword for this kind (`"mixin"` / `"function"`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            CallKind::Mixin => "mixin",
+            CallKind::Function => "function",
+        }
+    }
+}
+
+/// One frame of the caller ancestry: a mixin `@include` or function call that
+/// was in progress when a variable was recorded.
+///
+/// The `call_site` is the span of the invocation itself — *at the caller* — so
+/// `call_site.file()` identifies the file that made the call, which is the
+/// cross-file information a declaration's own span (the definition site) can't
+/// provide. A mixin/function defined in one file and used from several others
+/// produces frames whose `call_site`s point into each of those other files.
+#[derive(Debug, Clone)]
+pub struct CallFrame {
+    /// Whether this frame is a mixin `@include` or a function call.
+    pub kind: CallKind,
+    /// The name of the mixin or function being invoked.
+    pub name: String,
+    /// The span of the invocation, at the call site (not the definition).
+    pub call_site: Span,
+}
+
+/// A variable declaration's evaluated value, captured at the moment it is
+/// visited, together with the caller ancestry that led to that evaluation.
+///
+/// Recorded into [`Visitor::variable_values`] (keyed by the declaration's span)
+/// when [`crate::Options::record_variable_values`] is enabled. Because the value
+/// is captured while the declaration is still in scope, this works for variables
+/// declared inside nested rules, which no longer exist in the environment once
+/// evaluation has finished.
+///
+/// The declaration's *own* location (file and position) is the map key's span, so
+/// it is not duplicated here. What varies per evaluation — and is not derivable
+/// from that span — is the caller ancestry: a mixin or function is evaluated in
+/// its captured definition environment, so it is only [`ancestry`] that tells you
+/// *who invoked it* and from which file. See [`RecordedVariable::describe`].
+///
+/// [`ancestry`]: RecordedVariable::ancestry
+#[derive(Debug, Clone)]
+pub struct RecordedVariable {
+    /// The declared variable's name.
+    pub name: Identifier,
+    /// The variable's evaluated value at the point of declaration.
+    pub value: Value,
+    /// The enclosing style rule's selector at the point of declaration, or
+    /// `None` at the root. For a declaration reached through a mixin/function
+    /// this is the *caller's* current rule.
+    pub selector: Option<String>,
+    /// The chain of mixin `@include`s / function calls in progress when this
+    /// declaration was reached, outermost first. Empty when the declaration was
+    /// reached directly (not through any mixin or function). Each frame's
+    /// `call_site` span identifies the calling file and position.
+    pub ancestry: Vec<CallFrame>,
+}
+
+impl RecordedVariable {
+    /// A one-line, human-readable summary of where this value was evaluated,
+    /// e.g. `"$area [selector=.a via mixin box()]"` or, when reached directly,
+    /// `"$cool [selector=.name]"`.
+    pub fn describe(&self) -> String {
+        let selector = self.selector.as_deref().unwrap_or("<root>");
+        if self.ancestry.is_empty() {
+            format!("${} [selector={}]", self.name, selector)
+        } else {
+            let chain = self
+                .ancestry
+                .iter()
+                .map(|f| format!("{} {}", f.kind.as_str(), f.name))
+                .collect::<Vec<_>>()
+                .join(" -> ");
+            format!("${} [selector={} via {}]", self.name, selector, chain)
+        }
+    }
+}
+
 /// Evaluation context of the current execution
 #[derive(Debug)]
 pub struct Visitor<'a> {
@@ -133,6 +223,19 @@ pub struct Visitor<'a> {
     /// has been seen in the past. In the majority of cases, files are imported
     /// at most once.
     files_seen: BTreeSet<PathBuf>,
+    /// The evaluated value of every variable declaration visited so far, keyed
+    /// by the declaration's span. Each span maps to a `Vec` holding one
+    /// [`RecordedVariable`] per time that declaration was evaluated, in
+    /// evaluation order (a declaration inside a mixin or loop is recorded once
+    /// per invocation/iteration). Only populated when
+    /// [`crate::Options::record_variable_values`] is enabled; otherwise it stays
+    /// empty.
+    pub variable_values: BTreeMap<Span, Vec<RecordedVariable>>,
+    /// The stack of mixin `@include`s / function calls currently being evaluated,
+    /// outermost first. Snapshotted into [`RecordedVariable::ancestry`] whenever a
+    /// variable is recorded. Only maintained when
+    /// [`crate::Options::record_variable_values`] is enabled.
+    call_stack: Vec<CallFrame>,
 }
 
 impl<'a> Visitor<'a> {
@@ -171,6 +274,8 @@ impl<'a> Visitor<'a> {
             map,
             import_cache: BTreeMap::new(),
             files_seen: BTreeSet::new(),
+            variable_values: BTreeMap::new(),
+            call_stack: Vec::new(),
         }
     }
 
@@ -1758,6 +1863,9 @@ impl<'a> Visitor<'a> {
                     return Err(("Mixin doesn't accept a content block.", include_stmt.span).into());
                 }
 
+                let call_name = include_stmt.name.node;
+                let call_site = include_stmt.name.span;
+
                 let AstInclude { args, content, .. } = include_stmt;
 
                 let old_in_mixin = self.flags.in_mixin();
@@ -1770,11 +1878,12 @@ impl<'a> Visitor<'a> {
                     })
                 });
 
-                self.run_user_defined_callable::<_, (), _>(
+                self.push_call_frame(CallKind::Mixin, call_name, call_site);
+                let result = self.run_user_defined_callable::<_, (), _>(
                     MaybeEvaledArguments::Invocation(args),
                     mixin,
                     &env,
-                    include_stmt.name.span,
+                    call_site,
                     |mixin, visitor| {
                         visitor.with_content(callable_content, |visitor| {
                             for stmt in mixin.body {
@@ -1784,7 +1893,9 @@ impl<'a> Visitor<'a> {
                             Ok(())
                         })
                     },
-                )?;
+                );
+                self.pop_call_frame();
+                result?;
 
                 self.flags.set(ContextFlags::IN_MIXIN, old_in_mixin);
 
@@ -1982,6 +2093,52 @@ impl<'a> Visitor<'a> {
         Ok(None)
     }
 
+    /// Record a variable declaration's effective value for later inspection, if
+    /// [`crate::Options::record_variable_values`] is enabled. A no-op otherwise.
+    ///
+    /// Capturing here — while the declaration is still in scope — is what makes
+    /// locally-scoped variables recoverable after evaluation, when their scope no
+    /// longer exists in the environment.
+    fn record_variable_value(&mut self, span: Span, name: Identifier, value: &Value) {
+        if !self.options.record_variable_values {
+            return;
+        }
+
+        let selector = self
+            .style_rule_ignoring_at_root
+            .as_ref()
+            .map(|s| s.as_selector_list().to_string());
+
+        self.variable_values
+            .entry(span)
+            .or_default()
+            .push(RecordedVariable {
+                name,
+                value: value.clone(),
+                selector,
+                ancestry: self.call_stack.clone(),
+            });
+    }
+
+    /// Push a caller frame while a mixin/function body is evaluated. A no-op
+    /// unless [`crate::Options::record_variable_values`] is enabled. Must be
+    /// balanced with [`Self::pop_call_frame`].
+    fn push_call_frame(&mut self, kind: CallKind, name: Identifier, call_site: Span) {
+        if self.options.record_variable_values {
+            self.call_stack.push(CallFrame {
+                kind,
+                name: name.to_string(),
+                call_site,
+            });
+        }
+    }
+
+    fn pop_call_frame(&mut self) {
+        if self.options.record_variable_values {
+            self.call_stack.pop();
+        }
+    }
+
     fn visit_variable_decl(&mut self, decl: AstVariableDecl) -> SassResult<Option<Value>> {
         let name = Spanned {
             node: decl.name,
@@ -1998,10 +2155,12 @@ impl<'a> Visitor<'a> {
                         ..
                     }) | None
                 ) {
+                    let value = var_override.unwrap().value;
+                    self.record_variable_value(decl.span, decl.name, &value);
                     self.env.insert_var(
                         name,
                         None,
-                        var_override.unwrap().value,
+                        value,
                         true,
                         self.flags.in_semi_global_scope(),
                     )?;
@@ -2013,6 +2172,7 @@ impl<'a> Visitor<'a> {
                 let value = self.env.get_var(name, decl.namespace).unwrap();
 
                 if value != Value::Null {
+                    self.record_variable_value(decl.span, decl.name, &value);
                     return Ok(None);
                 }
             }
@@ -2020,6 +2180,8 @@ impl<'a> Visitor<'a> {
 
         let value = self.visit_expr(decl.value)?;
         let value = self.without_slash(value);
+
+        self.record_variable_value(decl.span, decl.name, &value);
 
         self.env.insert_var(
             name,
@@ -2396,18 +2558,29 @@ impl<'a> Visitor<'a> {
                 let val = func.0(evaluated, self)?;
                 Ok(self.without_slash(val))
             }
-            SassFunction::UserDefined(UserDefinedFunction { function, env, .. }) => self
-                .run_user_defined_callable(arguments, function, &env, span, |function, visitor| {
-                    for stmt in function.body.clone() {
-                        let result = visitor.visit_stmt(stmt)?;
+            SassFunction::UserDefined(UserDefinedFunction { function, env, .. }) => {
+                let call_name = function.name.node;
+                self.push_call_frame(CallKind::Function, call_name, span);
+                let result = self.run_user_defined_callable(
+                    arguments,
+                    function,
+                    &env,
+                    span,
+                    |function, visitor| {
+                        for stmt in function.body.clone() {
+                            let result = visitor.visit_stmt(stmt)?;
 
-                        if let Some(val) = result {
-                            return Ok(val);
+                            if let Some(val) = result {
+                                return Ok(val);
+                            }
                         }
-                    }
 
-                    Err(("Function finished without @return.", span).into())
-                }),
+                        Err(("Function finished without @return.", span).into())
+                    },
+                );
+                self.pop_call_frame();
+                result
+            }
             SassFunction::Plain { name } => {
                 let has_named;
                 let mut rest = None;

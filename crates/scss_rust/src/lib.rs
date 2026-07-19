@@ -73,7 +73,10 @@ pub use crate::fs::{Fs, NullFs, StdFs};
 pub use crate::logger::{Logger, NullLogger, StdLogger};
 pub use crate::options::{InputSyntax, Options, OutputStyle};
 use crate::serializer::StyleSerializer;
-pub use crate::{builtin::Builtin, evaluate::Visitor};
+pub use crate::{
+    builtin::Builtin,
+    evaluate::{CallFrame, CallKind, RecordedVariable, Visitor},
+};
 pub(crate) use crate::{context_flags::ContextFlags, lexer::Token};
 pub use crate::{
     lexer::Lexer,
